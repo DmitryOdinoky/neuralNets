@@ -1,34 +1,63 @@
-
+import math
+import numpy as np
 
 
 
 class Unit:
-    def __init__(this,value, grad):
+    def __init__(self,value, grad):
         ##value computed in the forward pass
-        this.value = value
+        self.value = value
         ##the derivative of circuit output w.r.t this unit, computed in backward pass
-        this.grad  = grad
+        self.grad  = grad
 
 # node in the network
         
 class multiplyGate:
-    def forward(this, u0 ,u1):
+    def forward(self, u0 ,u1):
      
-        this.u0 = u0
-        this.u1 = u1
-        this.utop = Unit(u0.value * u1.value, 0)
-        return this.utop
+        self.u0 = u0
+        self.u1 = u1
+        self.utop = Unit(u0.value * u1.value, 0)
+        return self.utop
     
-    def backward(this):
+    def backward(self):
         ##take the gradient in output unit and chain it with the
         ##local gradients, which we derived for multiply gate before
         ##then write those gradients to those Units.    
-        this.u0.grad += this.u1.value * this.utop.grad
-        this.u1.grad += this.u0.value * this.utop.grad
+        self.u0.grad += (self.u1.value * self.utop.grad)
+        self.u1.grad += (self.u0.value * self.utop.grad)
+        print(self.u0.grad)
+        print(self.u1.grad)
+        
+class AddGate(object):
+
+    def forward(self, u0, u1):
+        self.u0 = u0
+        self.u1 = u1
+        self.utop = Unit(u0.value + u1.value, 0)
+
+    def backward(self):
+        self.u0.grad += 1 * self.utop.grad
+        self.u1.grad += 1 * self.utop.grad
+
+
+class SigmoidGate(object):
+
+    def sigmoidGate(self, val):
+        return 1 / (1 + math.exp(-val))
+
+    def forward(self, u0):
+        self.u0 = u0
+        self.utop = Unit(self.sigmoidGate(self.u0.value), 0.0)
+
+    def backward(self):
+        s = self.sigmoidGate(self.u0.value)
+        self.u0.grad += (s * (1 - s)) * self.utop.grad
+        
         
 #%%
 
-u0 = Unit(1,0.1)
+u0 = Unit(1,4)
 u1 = Unit(2,0.3)        
 
 gate = multiplyGate
