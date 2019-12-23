@@ -7,15 +7,22 @@ Created on Sun Sep 22 22:14:31 2019
 
 
 import numpy as np
+import toolset as tools
+
 # X = (hours sleeping, hours studying), y = test score of the student
-X = np.array(([2, 9], [1, 5], [3, 6]), dtype=float)
-y = np.array(([92], [86], [89]), dtype=float)
+data = tools.dataGenByExpression('(x1**2) + (x1*x2**2)',0,1,10)
+X = data[:,:-1]
+y = data[:,-1]
+y = np.reshape(y,(10,1))
+
+
 
 # scale units
 X = X/np.amax(X, axis=0) #maximum of X array
-y = y/100 # maximum test score is 100
+y = y/np.amax(y, axis=0) # maximum test score is 100
 
 class NeuralNetwork(object):
+    
     def __init__(self):
         #parameters
         self.inputSize = 2
@@ -65,5 +72,5 @@ print("Input: " + str(X)) ##
 print("Actual Output: " + str(y))
 print("Loss: " + str(np.mean(np.square(y - NN.feedForward(X)))))
 print("\n")
-print("Predicted Output: " + str(NN.feedForward(X)))# -*- coding: utf-8 -*-
+print("Predicted Output: " + str(NN.feedForward(X)))
 

@@ -1,5 +1,8 @@
 import math
+import matplotlib.pyplot as plt
 import numpy as np
+
+#import numpy as np
 
 
 
@@ -54,96 +57,57 @@ class SigmoidGate(object):
         s = self.sigmoidGate(self.u0.value)
         self.u0.grad += (s * (1 - s)) * self.utop.grad
         
+def nonDependentDataset(low_bound,high_bound,length):
+    
+    predictedArray = np.random.uniform(low_bound,high_bound, size=(length, 2))
+    theta = np.linspace(low_bound,high_bound,num=length)
+    
+    
+    x1 = theta**2
+    x2 = theta**3/5
+    
+    data = np.column_stack((x1, x2))
+    error_abs = np.abs(data - predictedArray)
+    fig, ax = plt.subplots(1)
+
+    ax.plot(theta, x1)
+    ax.plot(theta, x2)
+    plt.stem(theta, error_abs[:,0], markerfmt=' ',linefmt='blue')
+    plt.plot(theta, predictedArray[:,0],'o', color = 'b')
+    plt.stem(theta, error_abs[:,1], markerfmt=' ',linefmt='red')
+    plt.plot(theta, predictedArray[:,1],'o', color = 'r')
+    ax.set_aspect(1/high_bound)
+    
+    
+    plt.grid(linestyle='--')
+    
+    plt.title('Dataset,', fontsize=8)
+    
+
+    plt.show()
+    return data, predictedArray
+
+
+def dataGenByExpression(expr,low_bound,high_bound,length):
+    
+ 
+    x1_arr = np.random.uniform(low_bound,high_bound, size=(length,))
+    x2_arr = np.random.uniform(low_bound,high_bound, size=(length,))
+
+    answerz = []
+    
+    for i in range(0,length):
+        exp_str = expr
+          
+        exp_str = exp_str.replace('x2', str(x2_arr[i]))
+        exp_str = exp_str.replace('x1', str(x1_arr[i]))
+        ans = eval(exp_str)
+        answerz.append(ans)
         
-#%%
+    output = np.column_stack((x1_arr, x2_arr,answerz))
+    
+    return output
 
-u0 = Unit(1,4)
-u1 = Unit(2,0.3)        
-
-gate = multiplyGate
-
-aaa = gate.forward(u0,u0,u1)
-
-bbb = gate.backward(u0)
-
-#%%        
-
-
-def forwardMultiplyGate(x, y):
-    return x * y
-
-
-def forwardAddGate(x, y):
-    return x + y
-
-
-def forwardCircuit(x, y, z):
-    q = forwardAddGate(x, y)
-    derivative_f_wrt_z = q
-    derivative_f_wrt_q = z
-    derivative_q_wrt_x = 1.0
-    derivative_q_wrt_y = 1.0
-    derivative_f_wrt_y = derivative_q_wrt_x * derivative_f_wrt_q
-    derivative_f_wrt_x = derivative_q_wrt_y * derivative_f_wrt_q
-
-    gradient_f_wrt_xyz = [derivative_f_wrt_x, derivative_f_wrt_y, derivative_f_wrt_z]
-    x = x + step_size * derivative_f_wrt_x
-    y = y + step_size * derivative_f_wrt_y
-    z = z + step_size * derivative_f_wrt_z
-    q = forwardAddGate(x, y)
-    f = forwardMultiplyGate(q, z)
-    return f
-
-
-def analytic_gradient(x, y):
-    """
-    Better than numerical because it is faster
-    also allows for no tweaking (direction is always right)
-    """
-    step_size = 0.01
-    out = forwardMultiplyGate(x, y)
-    x_derivative = y
-    y_derivative = x
-    x = x + step_size * x_derivative
-    y = y + step_size * y_derivative
-    out_new = forwardMultiplyGate(x, y)
-
-
-def numerical_gradient(x, y):
-    h = 0.0001
-    xph = x + h
-    out = forwardMultiplyGate(x, y)
-    out2 = forwardMultiplyGate(xph, y)
-    x_derivative = (out2 - out) / h
-
-    yph = y + h
-    out3 = forwardMultiplyGate(x, yph)
-    y_derivative = (out3 - out) / h
-
-
-def random_search(x, y):
-    tweak_amount = 0.01
-    best_out = -10000000
-    best_x = x
-    best_y = y
-    for i in range(100):
-        x_try = x + tweak_amount * (Math.random * 2 -1)
-        y_try = y + tweak_amount * (Math.random * 2 -1)
-        out = forwardMultiplyGate(x_try, y_try)
-        if (out > best_out):
-            best_out = out
-            best_x = x_try
-            best_y = y_try
-
-
-def main():
-    x = 2
-    y = 3
-    #random_search(x, y)
-    """
-    Back propagation is the chain rule
-    """
-
-if __name__ == "__main__":
-    main()# -*- coding: utf-8 -*-
+        
+        
 
