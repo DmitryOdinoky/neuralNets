@@ -27,7 +27,7 @@ class NeuralNetwork(object):
         #parameters
         self.inputSize = 2
         self.outputSize = 1
-        self.hiddenSize = 3
+        self.hiddenSize = 20
         
         #weights
         self.W1 = np.random.randn(self.inputSize, self.hiddenSize) # (3x2) weight matrix from input to hidden layer
@@ -63,7 +63,7 @@ class NeuralNetwork(object):
         
 NN = NeuralNetwork()
 
-for i in range(1000): #trains the NN 1000 times
+for i in range(10000): #trains the NN 1000 times
     if (i % 100 == 0):
         print("Loss: " + str(np.mean(np.square(y - NN.feedForward(X)))))
     NN.train(X, y)
