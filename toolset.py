@@ -5,11 +5,44 @@ import numpy as np
 #import numpy as np
 
 class Unit:
-    def __init__(self, value, grad):
+    def __init__(self, value, grad=0.0):
+        super().__init__()
         # Value computed in the forward pass
         self.value = value
         # The derivative of circuit output w.r.t. this unit, computed in backward pass
         self.grad = grad
+        
+        
+class LayerLinear(object):
+    def __init_(self, in_features, out_features):
+        super().__init__()
+        
+        self.mulG0 = MultiplyGate()
+        self.mulG1 = MultiplyGate()
+        self.addG0 = AddGate()
+        self.addG1 = AddGate()
+        
+        
+        self.w = Unit(np.random.uniform(-1.0, 1.0, (in_features, out_features)))
+        self.b = Unit(np.zeros(out_features))
+        self.x = None
+        self.output = None
+        
+    def forward(x,y,a,b,c,):
+        ax = mulG0.forward(a,x)
+        by = mulG1.foward(b,y)
+        axpby = addG0.foward(ax, by)
+        output = addG1.forward(axpby, c) # axpbypc
+        return output
+
+    def backward(gradient_top, output):
+        output.grad = gradient_top
+        addG1.backward()
+        addG0.backward()
+        mulG1.backward()
+        mulG0.backward()
+        
+        
 
 class MultiplyGate(object):
     def __init__(self):
@@ -124,6 +157,36 @@ y_grad = (forwardCircuitFast(a,b,c,x,y+h) - forwardCircuitFast(a,b,c,x,y))/h
 
 gradient_check = [a_grad, b_grad, c_grad, x_grad, y_grad]
 print(gradient_check)
+
+
+class Circuit(object):
+    
+    def __init__(self):
+        
+        self.mulG0 = MultiplyGate()
+        self.mulG1 = MultiplyGate()
+        self.addG0 = AddGate()
+        self.addG1 = AddGate()
+
+    def forward(x,y,a,b,c,):
+        ax = mulG0.forward(a,x)
+        by = mulG1.foward(b,y)
+        axpby = addG0.foward(ax, by)
+        axpbypc = addG1.forward(axpby, c)
+        return axpbypc
+
+    def backward(gradient_top, axpbypc):
+        axpbypc.grad = gradient_top
+        addG1.backward()
+        addG0.backward()
+        mulG1.backward()
+        mulG0.backward()
+
+
+
+
+
+#%%
         
 def nonDependentDataset(low_bound,high_bound,length):
     

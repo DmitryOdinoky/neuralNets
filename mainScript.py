@@ -6,6 +6,7 @@ import toolset as tools
 dataExpected = tools.dataGenByExpression('(x1**2) + (x1*x2**2)',0,1,10)
 
 
+#%%
 
 a = tools.Unit(1.0, 0.0)
 b = tools.Unit(2.0, 0.0)
@@ -54,3 +55,16 @@ y.value += step_size * y.grad # y.grad is 0.210
 
 s = forwardNeuron();
 print("Circuit output after on Backprop: %f" % s.value)
+
+
+#%%
+
+l1 = tools.LayerLinear()
+
+
+
+
+nn = [tools.LayerLinear(in_features=2, out_features=8),
+      tools.LayerLinear(in_features=8, out_features=10),
+      tools.LayerLinear(in_features=10, out_features=2),
+      ]
