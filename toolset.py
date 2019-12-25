@@ -17,10 +17,10 @@ class LayerLinear(object):
     def __init_(self, in_features, out_features):
         super().__init__()
         
-        self.mulG0 = MultiplyGate()
-        self.mulG1 = MultiplyGate()
-        self.addG0 = AddGate()
-        self.addG1 = AddGate()
+        # self.mulG0 = MultiplyGate()
+        # self.mulG1 = MultiplyGate()
+        # self.addG0 = AddGate()
+        # self.addG1 = AddGate()
         
         
         self.w = Unit(np.random.uniform(-1.0, 1.0, (in_features, out_features)))
@@ -28,19 +28,19 @@ class LayerLinear(object):
         self.x = None
         self.output = None
         
-    def forward(x,y,a,b,c,):
-        ax = mulG0.forward(a,x)
-        by = mulG1.foward(b,y)
-        axpby = addG0.foward(ax, by)
-        output = addG1.forward(axpby, c) # axpbypc
-        return output
+    # def forward(x,y,a,b,c,):
+    #     ax = mulG0.forward(a,x)
+    #     by = mulG1.foward(b,y)
+    #     axpby = addG0.foward(ax, by)
+    #     output = addG1.forward(axpby, c) # axpbypc
+    #     return output
 
-    def backward(gradient_top, output):
-        output.grad = gradient_top
-        addG1.backward()
-        addG0.backward()
-        mulG1.backward()
-        mulG0.backward()
+    # def backward(gradient_top, output):
+    #     output.grad = gradient_top
+    #     addG1.backward()
+    #     addG0.backward()
+    #     mulG1.backward()
+    #     mulG0.backward()
         
         
 
