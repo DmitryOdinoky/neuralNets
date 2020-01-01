@@ -1,7 +1,7 @@
 import math
 import matplotlib.pyplot as plt
 import numpy as np
-from util.paramInitializer import initialize_parameters  # import function to initialize weights and biases
+from paramInitializer import initialize_parameters  # import function to initialize weights and biases
 
 #import numpy as np
 
