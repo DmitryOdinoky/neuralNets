@@ -1,6 +1,7 @@
 import math
 import matplotlib.pyplot as plt
 import numpy as np
+from util.paramInitializer import initialize_parameters  # import function to initialize weights and biases
 
 #import numpy as np
 
@@ -13,36 +14,107 @@ class Unit:
         self.grad = grad
         
         
-class LayerLinear(object):
-    def __init_(self, in_features, out_features):
-        super().__init__()
-        
-        # self.mulG0 = MultiplyGate()
-        # self.mulG1 = MultiplyGate()
-        # self.addG0 = AddGate()
-        # self.addG1 = AddGate()
-        
-        
-        self.w = Unit(np.random.uniform(-1.0, 1.0, (in_features, out_features)))
-        self.b = Unit(np.zeros(out_features))
-        self.x = None
-        self.output = None
-        
-    # def forward(x,y,a,b,c,):
-    #     ax = mulG0.forward(a,x)
-    #     by = mulG1.foward(b,y)
-    #     axpby = addG0.foward(ax, by)
-    #     output = addG1.forward(axpby, c) # axpbypc
-    #     return output
+class LinearLayer:
+    """
+        This Class implements all functions to be executed by a linear layer
+        in a computational graph
+        Args:
+            input_shape: input shape of Data/Activations
+            n_out: number of neurons in layer
+            ini_type: initialization type for weight parameters, default is "plain"
+                      Opitons are: plain, xavier and he
+        Methods:
+            forward(A_prev)
+            backward(upstream_grad)
+            update_params(learning_rate)
+    """
 
-    # def backward(gradient_top, output):
-    #     output.grad = gradient_top
-    #     addG1.backward()
-    #     addG0.backward()
-    #     mulG1.backward()
-    #     mulG0.backward()
+    def __init__(self, input_shape, n_out, ini_type="plain"):
+        """
+        The constructor of the LinearLayer takes the following parameters
+        Args:
+            input_shape: input shape of Data/Activations
+            n_out: number of neurons in layer
+            ini_type: initialization type for weight parameters, default is "plain"
+        """
+
+        self.m = input_shape[1]  # number of examples in training data
+        # `params` store weights and bias in a python dictionary
+        self.params = initialize_parameters(input_shape[0], n_out, ini_type)  # initialize weights and bias
+        self.Z = np.zeros((self.params['W'].shape[0], input_shape[1]))  # create space for resultant Z output
+
+    def forward(self, A_prev):
+        """
+        This function performs the forwards propagation using activations from previous layer
+        Args:
+            A_prev:  Activations/Input Data coming into the layer from previous layer
+        """
+
+        self.A_prev = A_prev  # store the Activations/Training Data coming in
+        self.Z = np.dot(self.params['W'], self.A_prev) + self.params['b']  # compute the linear function
+
+    def backward(self, upstream_grad):
+        """
+        This function performs the back propagation using upstream gradients
+        Args:
+            upstream_grad: gradient coming in from the upper layer to couple with local gradient
+        """
+
+        # derivative of Cost w.r.t W
+        self.dW = np.dot(upstream_grad, self.A_prev.T)
+
+        # derivative of Cost w.r.t b, sum across rows
+        self.db = np.sum(upstream_grad, axis=1, keepdims=True)
+
+        # derivative of Cost w.r.t A_prev
+        self.dA_prev = np.dot(self.params['W'].T, upstream_grad)
+
+    def update_params(self, learning_rate=0.1):
+        """
+        This function performs the gradient descent update
+        Args:
+            learning_rate: learning rate hyper-param for gradient descent, default 0.1
+        """
+
+        self.params['W'] = self.params['W'] - learning_rate * self.dW  # update weights
+        self.params['b'] = self.params['b'] - learning_rate * self.db  # update bias(es)
         
-        
+
+class SigmoidLayer:
+    """
+    This class implements the Sigmoid Layer
+    Args:
+        shape: shape of input to the layer
+    Methods:
+        forward(Z)
+        backward(upstream_grad)
+    """
+
+    def __init__(self, shape):
+        """
+        The consturctor of the sigmoid/logistic activation layer takes in the following arguments
+        Args:
+            shape: shape of input to the layer
+        """
+        self.A = np.zeros(shape)  # create space for the resultant activations
+
+    def forward(self, Z):
+        """
+        This function performs the forwards propagation step through the activation function
+        Args:
+            Z: input from previous (linear) layer
+        """
+        self.A = 1 / (1 + np.exp(-Z))  # compute activations
+
+    def backward(self, upstream_grad):
+        """
+        This function performs the  back propagation step through the activation function
+        Local gradient => derivative of sigmoid => A*(1-A)
+        Args:
+            upstream_grad: gradient coming into this layer from the layer above
+        """
+        # couple upstream gradient with local gradient, the result will be sent back to the Linear layer
+        self.dZ = upstream_grad * self.A*(1-self.A)        
 
 class MultiplyGate(object):
     def __init__(self):
