@@ -25,7 +25,7 @@ def compute_cost(Y, Y_hat):
         dY_hat: gradient of Cost w.r.t the Y_hat
 
     """
-    m = Y.shape[1]
+    m = Y.shape[0]
 
     cost = (1 / (2 * m)) * np.sum(np.square(Y - Y_hat))
     cost = np.squeeze(cost)  # remove extraneous dimensions to give just a scalar
@@ -64,16 +64,17 @@ def predict(X, Y, Zs, As):
     # convert probas to 0/1 predictions
     for i in range(0, probas.shape[1]):
         if probas[0, i] > 0.5:  # 0.5 is threshold
-            p[0, i] = 1
+            p[0, i] = probas[0, i] # was 1 for binary funct
         else:
-            p[0, i] = 0
+            p[0, i] = probas[0, i] # was 0 for binary funct
 
     # print results
     # print ("predictions: " + str(p))
     # print ("true labels: " + str(y))
-    accuracy = np.sum((p == Y) / m)
+    ## for bunary funct --- >accuracy = np.sum((p == Y) / m)
+    rms_error = np.sqrt(np.mean((p-Y)**2))
 
-    return p, probas, accuracy*100
+    return p, probas, rms_error
 
 
 def plot_learning_curve(costs, learning_rate, total_epochs, save=False):

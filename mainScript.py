@@ -59,14 +59,4 @@ print("Circuit output after on Backprop: %f" % s.value)
 ### adasdas
 
 
-#%%
 
-l1 = tools.LayerLinear()
-
-
-
-
-nn = [tools.LayerLinear(in_features=2, out_features=8),
-      tools.LayerLinear(in_features=8, out_features=10),
-      tools.LayerLinear(in_features=10, out_features=2),
-      ]

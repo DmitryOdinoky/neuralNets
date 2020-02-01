@@ -1,4 +1,8 @@
 
+# from sympy import symbols
+# from sympy.plotting import plot3d
+# from sympy.plotting import plot
+
 from utilities import compute_cost
 from utilities import predict
 
@@ -7,27 +11,40 @@ from utilities import predict_dec
 from utilities import plot_decision_boundary
 from utilities import plot_decision_boundary_shaded
 
+
 from toolset import LinearLayer
 from toolset import SigmoidLayer
 import numpy as np
+import toolset as toolset
+
+dataExpected = toolset.dataGenByExpression('(x1**2) + (x1*x2**2)',0,1,10)
+
+# x1, x2 = symbols(('x1 x2'))
+
+# y = (x1**2) + (x1*x2**2)
+# plot3d(y,(x1,1,10),(x2,1,10))
+
+# X = np.array([
+#     [0, 0],
+#     [0, 1],
+#     [1, 0],
+#     [1, 1]
+# ])
 
 
-X = np.array([
-    [0, 0],
-    [0, 1],
-    [1, 0],
-    [1, 1]
-])
+# Y = np.array([
+#     [0],
+#     [1],
+#     [1],
+#     [0]
+# ])
 
 
-Y = np.array([
-    [0],
-    [1],
-    [1],
-    [0]
-])
+
+X = dataExpected[:,0:2]
 
 X_train = X
+Y = dataExpected[:,2]
 
 # add feature cross between 1st and 2nd feature
 X_train = np.c_[X_train, X[:, 0]* X[:, 1]]  # "np.c_" concatenates data column-wise
@@ -36,13 +53,7 @@ X_train = np.c_[X_train, X[:, 0]* X[:, 1]]  # "np.c_" concatenates data column-w
 X_train = X_train.T
 Y_train = Y.T
 
-#%%
 
-X_train
-
-#%%
-
-Y_train
 
 #%%
 
@@ -90,17 +101,14 @@ for epoch in range(number_of_epochs):
 #%%
 
 # see the ouptput predictions
-predicted_outputs, _, accuracy = predict(X=X_train, Y=Y_train, Zs=[Z1], As=[A1])
+predicted_outputs, _, rms_error = predict(X=X_train, Y=Y_train, Zs=[Z1], As=[A1])
 
 print("The predicted outputs:\n {}".format(predicted_outputs))
-print("The accuracy of the model is: {}%".format(accuracy))
+print("The RMS error of the model is: {}".format(rms_error))
 
 #%%
 
 plot_learning_curve(costs=costs, learning_rate=learning_rate, total_epochs=number_of_epochs)
 
-#%%
 
-plot_decision_boundary(lambda x:predict_dec(Zs=[Z1], As=[A1], X=x.T), X_train.T, Y_train.T, feat_crosses=[(0,1)])
-
-plot_decision_boundary_shaded(lambda x:predict_dec(Zs=[Z1], As=[A1], X=x.T), X_train.T, Y_train.T, feat_crosses=[(0,1)])    
+    
