@@ -3,17 +3,14 @@
 # from sympy.plotting import plot3d
 # from sympy.plotting import plot
 
-from utilities import compute_cost
-from utilities import predict
+from tools.utilities import compute_cost
+from tools.utilities import predict
 
-from utilities import plot_learning_curve
-from utilities import predict_dec
-from utilities import plot_decision_boundary
-from utilities import plot_decision_boundary_shaded
+from tools.utilities import plot_learning_curve
 
 
-from toolset import LinearLayer
-from toolset import SigmoidLayer
+from tools.toolset import LinearLayer
+from tools.toolset import SigmoidLayer
 import numpy as np
 import toolset as toolset
 
