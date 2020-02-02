@@ -3,16 +3,12 @@
 # from sympy.plotting import plot3d
 # from sympy.plotting import plot
 
-from tools.utilities import compute_cost
-from tools.utilities import predict
-
+from tools import utilities
 from tools.utilities import plot_learning_curve
+from tools import toolset
 
-
-from tools.toolset import LinearLayer
-from tools.toolset import SigmoidLayer
 import numpy as np
-import toolset as toolset
+
 
 dataExpected = toolset.dataGenByExpression('(x1**2) + (x1*x2**2)',0,1,10)
 
@@ -20,22 +16,6 @@ dataExpected = toolset.dataGenByExpression('(x1**2) + (x1*x2**2)',0,1,10)
 
 # y = (x1**2) + (x1*x2**2)
 # plot3d(y,(x1,1,10),(x2,1,10))
-
-# X = np.array([
-#     [0, 0],
-#     [0, 1],
-#     [1, 0],
-#     [1, 1]
-# ])
-
-
-# Y = np.array([
-#     [0],
-#     [1],
-#     [1],
-#     [0]
-# ])
-
 
 
 X = dataExpected[:,0:2]
@@ -58,15 +38,29 @@ Y_train = Y.T
 learning_rate = 1
 number_of_epochs = 5000
 
-np.random.seed(48) # set seed value so that the results are reproduceable
+np.random.seed(36) # set seed value so that the results are reproduceable
+
 
 # Our network architecture has the shape: 
-#                       (input)--> [Linear->Sigmoid] -->(output)  
+#               (input)--> [Linear->Sigmoid] -> [Linear->Sigmoid]->[Linear->Sigmoid] -->(output)  
+
+#------ LAYER-1 ----- define hidden layer that takes in training data 
+Z1 = toolset.LinearLayer(input_shape=X_train.shape, n_out=30, ini_type='xavier')
+A1 = toolset.SigmoidLayer(Z1.Z.shape)
+
+#------ LAYER-2 ----- define output layer that take is values from hidden layer
+Z2= toolset.LinearLayer(input_shape=A1.A.shape, n_out=30, ini_type='xavier')
+A2= toolset.SigmoidLayer(Z2.Z.shape)
 
 
-#------ LAYER-1 ----- define output layer that takes in training data 
-Z1 = LinearLayer(input_shape=X_train.shape, n_out=1, ini_type='plain')
-A1 = SigmoidLayer(Z1.Z.shape)
+#------ LAYER-3 ----- define output layer that take is values from 2nd hidden layer
+Z3= toolset.LinearLayer(input_shape=A2.A.shape, n_out=30, ini_type='xavier')
+A3= toolset.SigmoidLayer(Z3.Z.shape)
+
+# see what random weights and bias were selected and their shape 
+# print(Z1.params)
+# print(Z2.params)
+# print(Z3.params)
 
 #%%
 
@@ -79,26 +73,45 @@ for epoch in range(number_of_epochs):
     Z1.forward(X_train)
     A1.forward(Z1.Z)
     
+    Z2.forward(A1.A)
+    A2.forward(Z2.Z)
+    
+    Z3.forward(A2.A)
+    A3.forward(Z3.Z)
+    
     # ---------------------- Compute Cost ----------------------------
-    cost, dA1 = compute_cost(Y=Y_train, Y_hat=A1.A)
+    cost, dA3 = utilities.compute_cost(Y=Y_train, Y_hat=A3.A)
     
     # print and store Costs every 100 iterations.
     if (epoch % 100) == 0:
         print("Cost at epoch#{}: {}".format(epoch, cost))
         costs.append(cost)
     
-    # ------------------------- back-prop ---------------------------- 
-    A1.backward(dA1)
+    # ------------------------- back-prop ----------------------------
+    A3.backward(dA3)
+    Z3.backward(A3.dZ)
+    
+    A2.backward(Z3.dA_prev)
+    Z2.backward(A2.dZ)
+    
+    A1.backward(Z2.dA_prev)
     Z1.backward(A1.dZ)
     
     # ----------------------- Update weights and bias ----------------
+    Z3.update_params(learning_rate=learning_rate)
+    Z2.update_params(learning_rate=learning_rate)
     Z1.update_params(learning_rate=learning_rate)
+
+# See what the final weights and bias are training 
+# print(Z1.params)
+# print(Z2.params)
+# print(Z3.params)
     
     
 #%%
 
 # see the ouptput predictions
-predicted_outputs, _, rms_error = predict(X=X_train, Y=Y_train, Zs=[Z1], As=[A1])
+predicted_outputs, _, rms_error = utilities.predict(X=X_train, Y=Y_train, Zs=[Z1, Z2, Z3], As=[A1, A2, A3])
 
 print("The predicted outputs:\n {}".format(predicted_outputs))
 print("The RMS error of the model is: {}".format(rms_error))
