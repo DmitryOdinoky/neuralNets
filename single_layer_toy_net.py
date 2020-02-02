@@ -17,6 +17,22 @@ dataExpected = toolset.dataGenByExpression('(x1**2) + (x1*x2**2)',0,1,10)
 # y = (x1**2) + (x1*x2**2)
 # plot3d(y,(x1,1,10),(x2,1,10))
 
+# X = np.array([
+#     [0, 0],
+#     [0, 1],
+#     [1, 0],
+#     [1, 1]
+# ])
+
+
+# Y = np.array([
+#     [0],
+#     [1],
+#     [1],
+#     [0]
+# ])
+
+
 
 X = dataExpected[:,0:2]
 
@@ -24,7 +40,7 @@ X_train = X
 Y = dataExpected[:,2]
 
 # add feature cross between 1st and 2nd feature
-X_train = np.c_[X_train, X[:, 0]* X[:, 1]]  # "np.c_" concatenates data column-wise
+## X_train = np.c_[X_train, X[:, 0]* X[:, 1]]  # "np.c_" concatenates data column-wise
 
 # now we can set up data in the shape required by the neural net layers
 X_train = X_train.T
