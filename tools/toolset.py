@@ -311,6 +311,11 @@ def dataGenByExpression(expr,low_bound,high_bound,length):
     
     return output
 
+#%%
+    
+def rollingWindow(array, windowSize):
+    for x in (array, windowSize):
+        return x
         
         
 
