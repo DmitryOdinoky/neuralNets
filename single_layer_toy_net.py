@@ -79,9 +79,15 @@ A3= toolset.SigmoidLayer(Z3.Z.shape)
 
     
     
-#%%    
+#%%
+
+counter = 1    
 
 for batch in slicez:
+    
+    print('BATCH ##### -- ' + str(counter))
+    counter +=1
+    
     X = batch[:,0:2]
 
     X_train = X
@@ -115,7 +121,7 @@ for batch in slicez:
         cost, dA3 = utilities.compute_cost(Y=Y_train, Y_hat=A3.A)
         
         # print and store Costs every 100 iterations.
-        if (epoch % 1) == 0:
+        if (epoch % 100) == 0:
             print("Cost at epoch#{}: {}".format(epoch, cost))
             costs.append(cost)
         
@@ -138,6 +144,7 @@ for batch in slicez:
     # print(Z1.params)
     # print(Z2.params)
     # print(Z3.params)
+   
     
     
 #%%
