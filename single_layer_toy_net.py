@@ -11,7 +11,7 @@ from tools import toolset
 import numpy as np
 
 
-dataExpected = toolset.dataGenByExpression('(x1**2) + (x1*x2**2)',0,1,30)
+dataExpected = toolset.dataGenByExpression('(x1**2) + (x1*x2**6)',0,1,60)
 
 # x1, x2 = symbols(('x1 x2'))
 
@@ -50,7 +50,7 @@ Y_train = Y.T
 
 # define training constants
 learning_rate = 0.1
-number_of_epochs = 501
+number_of_epochs = 1001
 
 np.random.seed(36) # set seed value so that the results are reproduceable
 
@@ -96,6 +96,7 @@ for batch in slicez:
     
 
     costs = [] # initially empty list, this will store all the costs after a certian number of epochs
+    
     
     # Start training
     for epoch in range(number_of_epochs):
@@ -144,6 +145,7 @@ for batch in slicez:
 # see the ouptput predictions
 predicted_outputs, _, rms_error = utilities.predict(X=X_train, Y=Y_train, Zs=[Z1, Z2, Z3], As=[A1, A2, A3])
 
+print("The expected outputs:\n {}".format(Y_train.T))
 print("The predicted outputs:\n {}".format(predicted_outputs))
 print("The RMS error of the model is: {}".format(rms_error))
 
