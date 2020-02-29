@@ -5,13 +5,13 @@
 
 
 from tools import utilities
-from tools.utilities import plot_learning_curve
+#from tools.utilities import plot_learning_curve
 from tools import toolset
 
 import numpy as np
 import matplotlib as plt
 
-dataExpected = toolset.dataGenByExpression('(x2*x1**2) + (x1*x2**6)+3*x1**5*x2**4',0,0.2,30)
+dataExpected = toolset.dataGenByExpression('x1**5*x2**4+x1**2',0.2,0.3,100)
 
 # x1, x2 = symbols(('x1 x2'))
 
@@ -22,7 +22,7 @@ dataExpected = toolset.dataGenByExpression('(x2*x1**2) + (x1*x2**6)+3*x1**5*x2**
 #%%
 
 
-batch_size = 3
+batch_size = 2
 
 slicez = []    
 
@@ -54,23 +54,23 @@ learning_rate = 0.001
 number_of_cycles = 10
 number_of_epochs = 50
 
-np.random.seed(36) # set seed value so that the results are reproduceable
+np.random.seed(16) # set seed value so that the results are reproduceable
 
 
 # Our network architecture has the shape: 
 #               (input)--> [Linear->Sigmoid] -> [Linear->Sigmoid]->[Linear->Sigmoid] -->(output)  
 
 #------ LAYER-1 ----- define hidden layer that takes in training data 
-Z1 = toolset.LinearLayer(input_shape=X_train.shape, n_out=80, ini_type='xavier')
+Z1 = toolset.LinearLayer(input_shape=X_train.shape, n_out=60, ini_type='plain')
 A1 = toolset.SigmoidLayer(Z1.Z.shape)
 
 #------ LAYER-2 ----- define output layer that take is values from hidden layer
-Z2= toolset.LinearLayer(input_shape=A1.A.shape, n_out=60, ini_type='xavier')
+Z2= toolset.LinearLayer(input_shape=A1.A.shape, n_out=20, ini_type='plain')
 A2= toolset.SigmoidLayer(Z2.Z.shape)
 
 
 #------ LAYER-3 ----- define output layer that take is values from 2nd hidden layer
-Z3= toolset.LinearLayer(input_shape=A2.A.shape, n_out=80, ini_type='xavier')
+Z3= toolset.LinearLayer(input_shape=A2.A.shape, n_out=30, ini_type='plain')
 A3= toolset.SigmoidLayer(Z3.Z.shape)
 
 # see what random weights and bias were selected and their shape 
@@ -170,13 +170,13 @@ for epoch in range(number_of_epochs):
 predicted_outputs, _, rms_error = utilities.predict(X=X_train, Y=Y_train, Zs=[Z1, Z2, Z3], As=[A1, A2, A3])
 
 print("The expected outputs:\n {}".format(Y_train.T))
-print("The predicted outputs:\n {}".format(predicted_outputs))
+print("The predicted outputs:\n {}".format(np.squeeze(predicted_outputs)))
 print("The RMS error of the model is: {}".format(rms_error))
 
 #%%
 
 
-plt.pyplot.plot(iterationz, costs) # per epoch
+plt.pyplot.scatter(iterationz, costs) # per epoch
 
 
 #%%

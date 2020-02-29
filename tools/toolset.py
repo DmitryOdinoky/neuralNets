@@ -38,7 +38,7 @@ class LinearLayer:
             ini_type: initialization type for weight parameters, default is "plain"
         """
 
-        self.m = input_shape[1]  # number of examples in training data
+        self.in_features = input_shape[1]  # number of examples in training data
         # `params` store weights and bias in a python dictionary
         self.params = initialize_parameters(input_shape[0], n_out, ini_type)  # initialize weights and bias
         self.Z = np.zeros((self.params['W'].shape[0], input_shape[1]))  # create space for resultant Z output
