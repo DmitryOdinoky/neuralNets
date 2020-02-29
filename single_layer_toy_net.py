@@ -11,7 +11,7 @@ from tools import toolset
 import numpy as np
 
 
-dataExpected = toolset.dataGenByExpression('(x1**2) + (x1*x2**6)',0,1,60)
+dataExpected = toolset.dataGenByExpression('(x1**2) + (x1*x2**6)+3*x1**5*x2**4',0,0.65,60)
 
 # x1, x2 = symbols(('x1 x2'))
 
@@ -34,6 +34,7 @@ for i in range(0, len(dataExpected), batch_size):
 X = slicez[0].T[:,0:2]
 
 X_train = X
+
 Y = slicez[0].T[:,2]
 
 # add feature cross between 1st and 2nd feature
@@ -49,8 +50,8 @@ Y_train = Y.T
 #%%
 
 # define training constants
-learning_rate = 0.1
-number_of_epochs = 1001
+learning_rate = 0.001
+number_of_epochs = 2001
 
 np.random.seed(36) # set seed value so that the results are reproduceable
 

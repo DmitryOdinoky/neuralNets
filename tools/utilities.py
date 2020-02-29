@@ -82,7 +82,7 @@ def plot_learning_curve(costs, learning_rate, total_epochs, save=False):
     # plot the cost
     plt.figure()
 
-    steps = int(total_epochs / len(costs))  # the steps at with costs were recorded
+    steps = int(total_epochs / (len(costs)))  # the steps at with costs were recorded
     plt.ylabel('Cost')
     plt.xlabel('Iterations ')
     plt.title("Learning rate =" + str(learning_rate))
