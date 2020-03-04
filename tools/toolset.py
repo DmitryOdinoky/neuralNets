@@ -42,7 +42,8 @@ class LinearLayer:
         # `params` store weights and bias in a python dictionary
         self.params = initialize_parameters(input_shape[0], n_out, ini_type)  # initialize weights and bias
         self.Z = np.zeros((self.params['W'].shape[0], input_shape[1]))  # create space for resultant Z output
-
+        
+    
     def forward(self, A_prev):
         """
         This function performs the forwards propagation using activations from previous layer
@@ -52,7 +53,8 @@ class LinearLayer:
 
         self.A_prev = A_prev  # store the Activations/Training Data coming in
         self.Z = np.dot(self.params['W'], self.A_prev) + self.params['b']  # compute the linear function
-
+        return self.Z
+        
     def backward(self, upstream_grad):
         """
         This function performs the back propagation using upstream gradients
@@ -61,13 +63,13 @@ class LinearLayer:
         """
 
         # derivative of Cost w.r.t W
-        self.dW = np.dot(upstream_grad, self.A_prev.T)
+        self.dW = np.matmul(upstream_grad, self.A_prev.T)
 
         # derivative of Cost w.r.t b, sum across rows
         self.db = np.sum(upstream_grad, axis=1, keepdims=True)
 
         # derivative of Cost w.r.t A_prev
-        self.dA_prev = np.dot(self.params['W'].T, upstream_grad)
+        self.dA_prev = np.matmul(self.params['W'].T, upstream_grad)
 
     def update_params(self, learning_rate=0.1):
         """
@@ -105,6 +107,7 @@ class SigmoidLayer:
             Z: input from previous (linear) layer
         """
         self.A = 1 / (1 + np.exp(-Z))  # compute activations
+        return self.A
 
     def backward(self, upstream_grad):
         """
@@ -231,5 +234,3 @@ def rollingWindow(array, windowSize):
     for x in (array, windowSize):
         return x
         
-        
-
