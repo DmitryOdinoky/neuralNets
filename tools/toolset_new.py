@@ -74,6 +74,26 @@ class MSE_Loss:
     def backward(self):
         self.y_prim.grad = 2*(self.y.value - self.y_prim.value)
         
+def dataGenByExpression(expr,low_bound,high_bound,length):    
+
+    x1_arr = np.random.uniform(low_bound,high_bound, size=(length,))
+    x2_arr = np.random.uniform(low_bound,high_bound, size=(length,))
+
+    answerz = []
+    
+    for i in range(0,length):
+        exp_str = expr
+          
+        exp_str = exp_str.replace('x2', str(x2_arr[i]))
+        exp_str = exp_str.replace('x1', str(x1_arr[i]))
+        ans = eval(exp_str)
+        answerz.append(ans)
+        
+    output = np.column_stack((x1_arr, x2_arr,answerz))
+    
+    return output
+    
+    
 
         
     

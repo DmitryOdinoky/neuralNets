@@ -6,7 +6,7 @@ import numpy as np
 import matplotlib as plt
 
 
-dataExpected = toolset_new.dataGenByExpression('x1**5*x2**4+x1**2+3*x1+0.36*x2',0.25,0.3,100)
+dataExpected = toolset_new.dataGenByExpression('x1**5*x2**4',0.25,0.3,100)
 
 
 
