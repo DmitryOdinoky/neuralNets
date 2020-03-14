@@ -1,7 +1,7 @@
 import math
-import matplotlib.pyplot as plt
+
 import numpy as np
-from paramInitializer import initialize_parameters  # import function to initialize weights and biases
+
 
 class Variable(object):
     def __init__(self, value: np.ndarray, grad: np.ndarray = None):
@@ -17,7 +17,7 @@ class LayerLinear:
     def __init__(self, in_features, out_features):
         
         self.w: Variable = Variable(np.random.uniform(low=-1,size=(in_features, out_features)))
-        self.b: Variable = Variable(np.zeros((in_features, out_features)))
+        self.b: Variable = Variable(np.zeros((out_features,)))
         
         self.x: Variable = None
         self.output: Variable = None
@@ -33,8 +33,9 @@ class LayerLinear:
     def backward(self):
         self.x.grad = np.matmul(self.output.grad, np.transpose(self.w.value))
         
-        self.w.grad = np.matmul(np.expand_dims(self.x.value, axis=2), np.expand_dims(self.ouput.grad, axis=1))
+        self.w.grad = np.matmul(np.expand_dims(self.x.value, axis=2), np.expand_dims(self.output.grad, axis=1))
         self.b.grad = 1*self.output.grad
+
         
 class LayerSigmoid(object):
     
@@ -71,7 +72,7 @@ class MSE_Loss:
         return self.gradTop
     
     def backward(self):
-        self.y_prim.grad += 2*(self.y.value - self.y_prim.value)
+        self.y_prim.grad = 2*(self.y.value - self.y_prim.value)
         
 
         
