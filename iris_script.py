@@ -30,7 +30,6 @@ np.random.shuffle(dataExpected)
 
 #%%
 
-
 batch_size = 3
 
 dataset = []    
@@ -41,15 +40,10 @@ for i in range(0, len(dataExpected), batch_size):
 #%%
 
 X = dataset[0][:,0:4]
-
-
 Y = dataset[0][:,4]
 
 X_train = X.T
 Y_train = Y.T
-
-
-
 
 #%%
 
@@ -59,7 +53,6 @@ learning_rate = 0.0001
 number_of_epochs = 160
 
 np.random.seed(16) # set seed value so that the results are reproduceable
-
 
 # Our network architecture has the shape: 
 #               (input)--> [Linear->Sigmoid] -> [Linear->Sigmoid]->[Linear->Sigmoid] -->(output)  
@@ -71,7 +64,6 @@ A1 = toolset_new.LayerSigmoid()
 #------ LAYER-2 ----- define output layer that take is values from hidden layer
 Z2 = toolset_new.LayerLinear(in_features=64, out_features=32)
 A2 = toolset_new.LayerSigmoid()
-
 
 #------ LAYER-3 ----- define output layer that take is values from 2nd hidden layer
 Z3 = toolset_new.LayerLinear(in_features=32, out_features=1)
@@ -85,11 +77,7 @@ A3 = toolset_new.LayerSigmoid()
 
 #%%
 
-
-neural_net = [Z1,A1,Z2,A2,Z3,A3]
-
-
-    
+neural_net = [Z1,A1,Z2,A2,Z3,A3] 
     
 #%%
 
@@ -165,11 +153,4 @@ for epoch in range(number_of_epochs):
 
 #%%
 
-
 plt.pyplot.scatter(iterationz, costs) # per epoch
-
-
-#%%
-
-
-    
