@@ -1,14 +1,30 @@
-
+import csv
 
 
 from tools import toolset_new
 from tools.toolset_new import Variable, MSE_Loss
 
 import numpy as np
+import numpy.core.defchararray as np_f
 import matplotlib as plt
 
 
-dataExpected = toolset_new.dataGenByExpression('x1**5*x2**4',-0.5,0.5,100)
+with open('datasets/iris.csv', newline='') as csvfile:
+     data = list(csv.reader(csvfile))
+
+
+dataExpected = np.array(data)
+
+
+dataExpected = np_f.replace(dataExpected[:,:], 'setosa', "0")
+dataExpected = np_f.replace(dataExpected[:,:], 'versicolor', "1")
+dataExpected = np_f.replace(dataExpected[:,:], 'virginica', "2")
+
+dataExpected = np.delete(dataExpected,0,0)
+
+dataExpected = dataExpected.astype(np.float)
+
+np.random.shuffle(dataExpected)
 
 
 
@@ -24,10 +40,10 @@ for i in range(0, len(dataExpected), batch_size):
 
 #%%
 
-X = dataset[0][:,0:2]
+X = dataset[0][:,0:4]
 
 
-Y = dataset[0][:,2]
+Y = dataset[0][:,4]
 
 X_train = X.T
 Y_train = Y.T
@@ -136,7 +152,7 @@ for epoch in range(number_of_epochs):
             
     if (epoch % 10) == 0:
         print("Cost at epoch#{}: {}".format(epoch, np.mean(loss.value)))
-        costs.append(loss.value)
+        costs.append(np.mean(loss.value))
         iterationz.append(counter)
                 
                 
