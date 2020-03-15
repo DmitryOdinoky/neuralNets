@@ -16,16 +16,15 @@ with open('datasets/iris.csv', newline='') as csvfile:
 dataExpected = np.array(data)
 
 
-dataExpected = np_f.replace(dataExpected[:,:], 'setosa', "0")
-dataExpected = np_f.replace(dataExpected[:,:], 'versicolor', "1")
-dataExpected = np_f.replace(dataExpected[:,:], 'virginica', "2")
+dataExpected = np_f.replace(dataExpected[:,:], 'setosa', '0')
+dataExpected = np_f.replace(dataExpected[:,:], 'versicolor', '1')
+dataExpected = np_f.replace(dataExpected[:,:], 'virginica', '2')
 
 dataExpected = np.delete(dataExpected,0,0)
 
 dataExpected = dataExpected.astype(np.float)
 
 np.random.shuffle(dataExpected)
-
 
 
 #%%
