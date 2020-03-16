@@ -78,6 +78,8 @@ class MSE_Loss:
 
 class CrossEntropy:
     
+    #compute stable cross-entropy
+    
     def __init__(self):
         self.y: Variable = None
         self.p_hat: Variable = None
@@ -85,7 +87,7 @@ class CrossEntropy:
         
     def forward(self, y: Variable, p_hat: Variable):
         
-        m = np.shape(y.value)[1]
+        m = np.shape(y.value)[0]
         
         self.y = y
         self.p_hat = p_hat
@@ -98,7 +100,7 @@ class CrossEntropy:
     
     def backward(self):
         
-        m = np.shape(self.y.value)[1]
+        m = np.shape(self.y.value)[0]
         
         self.p_hat.grad = (1/m) * ((1/(1+np.exp(- self.p_hat.value))) - self.y.value)
 
