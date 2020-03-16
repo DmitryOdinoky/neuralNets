@@ -2,7 +2,7 @@ import csv
 
 
 from tools import toolset_new
-from tools.toolset_new import Variable, MSE_Loss
+from tools.toolset_new import Variable, MSE_Loss, CrossEntropy
 
 import numpy as np
 import numpy.core.defchararray as np_f
@@ -47,9 +47,9 @@ Y_train = Y.T
 #%%
 
 # define training constants
-learning_rate = 0.0001
+learning_rate = 0.001
 
-number_of_epochs = 160
+number_of_epochs = 140
 
 np.random.seed(16) # set seed value so that the results are reproduceable
 
@@ -84,7 +84,7 @@ costs = []
 iterationz = []
 counter = 0
 
-loss_func = MSE_Loss()
+loss_func = CrossEntropy()
 
 for epoch in range(number_of_epochs):
     
@@ -138,8 +138,8 @@ for epoch in range(number_of_epochs):
             linear.b.value += np.mean(linear.b.grad, axis=0) * learning_rate
             
     if (epoch % 10) == 0:
-        print("Cost at epoch#{}: {}".format(epoch, np.mean(loss.value)))
-        costs.append(np.mean(loss.value))
+        print("Cost at epoch#{}: {}".format(epoch, np.mean(loss)))
+        costs.append(np.mean(loss))
         iterationz.append(counter)
                 
                 

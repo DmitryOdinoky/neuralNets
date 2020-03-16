@@ -74,6 +74,35 @@ class MSE_Loss:
     def backward(self):
         self.y_prim.grad = 2*(self.y.value - self.y_prim.value)
         
+
+
+class CrossEntropy:
+    
+    def __init__(self):
+        self.y: Variable = None
+        self.p_hat: Variable = None
+        self.gradTop: Variable = None
+        
+    def forward(self, y: Variable, p_hat: Variable):
+        
+        m = np.shape(y.value)[1]
+        
+        self.y = y
+        self.p_hat = p_hat
+        
+        self.gradTop = -(1/m) * np.sum(-self.y.value * np.log(self.p_hat.value) - (1-self.y.value)*np.log(1-self.p_hat.value))
+        
+        
+
+        return self.gradTop
+    
+    def backward(self):
+        
+        m = np.shape(self.y.value)[1]
+        
+        self.p_hat.grad = (1/m) * (-(self.y.value/self.p_hat.value) + ((1-self.y.value)/(1-self.p_hat.value)))
+
+        
 def dataGenByExpression(expr,low_bound,high_bound,length):    
 
     x1_arr = np.random.uniform(low_bound,high_bound, size=(length,))
@@ -92,6 +121,8 @@ def dataGenByExpression(expr,low_bound,high_bound,length):
     output = np.column_stack((x1_arr, x2_arr,answerz))
     
     return output
+
+
     
     
 
