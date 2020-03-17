@@ -116,14 +116,13 @@ class LayerSoftmaxV2(object):
     def forward(self, x):
       self.x = x
       
-      
       self.output = Variable(
           self.func(np.matmul(x.value, self.w.value) + self.b.value))
       return self.output
         
     def backward(self):
         y = self.func(self.x.value)
-        self.x.grad = y * (1 - self.output.grad)
+        self.x.grad = y * (1 - y)
     
     
         

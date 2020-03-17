@@ -55,7 +55,7 @@ Y_train = Y.T
 # define training constants
 learning_rate = 0.0001
 
-number_of_epochs = 120
+number_of_epochs = 400
 
 np.random.seed(18) # set seed value so that the results are reproduceable
 
