@@ -93,7 +93,7 @@ class CrossEntropy:
         self.p_hat = p_hat
         
         self.gradTop = Variable((-1/m) * np.sum(np.maximum(self.p_hat.value, 0) - self.p_hat.value * self.y.value + np.log(1+ np.exp(- np.abs(self.p_hat.value)))))
-        
+        #self.gradTop = Variable(-np.sum(self.y.value*np.log(self.p_hat.value)))
         
 
         return self.gradTop
@@ -103,7 +103,7 @@ class CrossEntropy:
         m = np.shape(self.y.value)[0]
         
         self.p_hat.grad = (1/m) * ((1/(1+np.exp(- self.p_hat.value))) - self.y.value)
-
+        #self.gradTop = Variable(self.y.value/self.p_hat.value)
         
 def dataGenByExpression(expr,low_bound,high_bound,length):    
 

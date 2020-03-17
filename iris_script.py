@@ -19,12 +19,18 @@ dataExpected = np.array(data)
 dataExpected = np_f.replace(dataExpected[:,:], 'setosa', '0')
 dataExpected = np_f.replace(dataExpected[:,:], 'versicolor', '1')
 dataExpected = np_f.replace(dataExpected[:,:], 'virginica', '2')
+dataLabels = dataExpected[0]
 
 dataExpected = np.delete(dataExpected,0,0)
 
 dataExpected = dataExpected.astype(np.float)
 
 np.random.shuffle(dataExpected)
+
+dataToTrain = dataExpected[0:130, :]
+dataToTest = dataExpected[130:150, :]
+
+
 
 
 #%%
@@ -33,8 +39,8 @@ batch_size = 3
 
 dataset = []    
 
-for i in range(0, len(dataExpected), batch_size):
-    dataset.append(dataExpected[i:i+batch_size])
+for i in range(0, len(dataToTrain), batch_size):
+    dataset.append(dataToTrain[i:i+batch_size])
 
 #%%
 
@@ -49,7 +55,7 @@ Y_train = Y.T
 # define training constants
 learning_rate = 0.0001
 
-number_of_epochs = 140
+number_of_epochs = 500
 
 np.random.seed(18) # set seed value so that the results are reproduceable
 
@@ -65,7 +71,7 @@ Z2 = toolset_new.LayerLinear(in_features=64, out_features=32)
 A2 = toolset_new.LayerSigmoid()
 
 #------ LAYER-3 ----- define output layer that take is values from 2nd hidden layer
-Z3 = toolset_new.LayerLinear(in_features=32, out_features=1)
+Z3 = toolset_new.LayerLinear(in_features=32, out_features=3)
 A3 = toolset_new.LayerSigmoid()
 
 # see what random weights and bias were selected and their shape 
@@ -86,9 +92,6 @@ counter = 0
 
 loss_func = CrossEntropy()
 
-def rms(array):
-   return np.sqrt(np.mean(array ** 2))
-
 #loss_func = MSE_Loss()
 
 for epoch in range(number_of_epochs):
@@ -108,14 +111,10 @@ for epoch in range(number_of_epochs):
 
         # ------------------------- forward-prop -------------------------
         
-        #???????# how to iterate in an elegant manner here?
-        
-        out = neural_net[0].forward(Variable(X))
-        out = neural_net[1].forward(out)
-        out = neural_net[2].forward(out)
-        out = neural_net[3].forward(out)
-        out = neural_net[4].forward(out)
-        out = neural_net[5].forward(out)
+    
+        out = Variable(X)
+        for layer in neural_net:
+             out = layer.forward(out)
 
         # ---------------------- Compute Cost ----------------------------
 
@@ -138,7 +137,16 @@ for epoch in range(number_of_epochs):
         Z1.backward()
 
         # ----------------------- Update weights and bias ----------------
-        for linear in [Z3, Z2, Z1]:
+        
+        stuffToUpdate = []
+        
+        for item in neural_net:
+            if isinstance(item, (toolset_new.LayerLinear)):
+                stuffToUpdate.append(item)
+            elif isinstance(item, str):
+                pass
+        
+        for linear in stuffToUpdate:
             linear.w.value += np.mean(linear.w.grad, axis=0) * learning_rate
             linear.b.value += np.mean(linear.b.grad, axis=0) * learning_rate
             
@@ -158,3 +166,7 @@ for epoch in range(number_of_epochs):
 #%%
 
 plt.pyplot.scatter(iterationz, costs) # per epoch
+
+#%%
+
+
