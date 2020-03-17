@@ -73,6 +73,57 @@ class MSE_Loss:
     
     def backward(self):
         self.y_prim.grad = 2*(self.y.value - self.y_prim.value)
+    
+        
+        
+        
+class LayerSoftmax(object):
+    
+    def __init__self(self):
+           super().__init__()
+           self.x = None
+           self.output = None
+           
+    def func(self, x):
+        exps = np.exp(x-np.max(x))
+        return exps/np.sum(exps)
+    
+    def forward(self, x):
+      self.x = x
+      self.output = Variable(
+          self.func(x.value))
+      return self.output
+        
+    def backward(self):
+        y = self.func(self.x.value)
+        self.x.grad = (y *(1.0 - y)) * self.output.grad
+        
+
+class LayerSoftmaxV2(object):
+    
+    def __init__(self, in_features, out_features):
+        
+        self.w: Variable = Variable(np.random.uniform(low=-1,size=(in_features, out_features)))
+        self.b: Variable = Variable(np.zeros((out_features,)))
+        
+        self.x: Variable = None
+        self.output: Variable = None
+           
+    def func(self, x):
+        exps = np.exp(x-np.max(x))
+        return exps/np.sum(exps)
+    
+    def forward(self, x):
+      self.x = x
+      self.output = Variable(
+          self.func(x.value))
+      return self.output
+        
+    def backward(self):
+        y = self.func(self.x.value)
+        self.x.grad = (y *(1.0 - y)) * self.output.grad
+    
+    
         
 
 
@@ -82,18 +133,18 @@ class CrossEntropy:
     
     def __init__(self):
         self.y: Variable = None
-        self.p_hat: Variable = None
+        self.y_hat: Variable = None
         self.gradTop: Variable = None
         
-    def forward(self, y: Variable, p_hat: Variable):
+    def forward(self, y: Variable, y_hat: Variable):
         
         m = np.shape(y.value)[0]
         
         self.y = y
-        self.p_hat = p_hat
+        self.y_hat = y_hat
         
-        self.gradTop = Variable((-1/m) * np.sum(np.maximum(self.p_hat.value, 0) - self.p_hat.value * self.y.value + np.log(1+ np.exp(- np.abs(self.p_hat.value)))))
-        #self.gradTop = Variable(-np.sum(self.y.value*np.log(self.p_hat.value)))
+        #self.gradTop = Variable((-1/m) * np.sum(np.maximum(self.p_hat.value, 0) - self.p_hat.value * self.y.value + np.log(1+ np.exp(- np.abs(self.p_hat.value)))))
+        self.gradTop = Variable(-np.sum(self.y.value*np.log(self.y_hat.value)))
         
 
         return self.gradTop
@@ -102,8 +153,13 @@ class CrossEntropy:
         
         m = np.shape(self.y.value)[0]
         
-        self.p_hat.grad = (1/m) * ((1/(1+np.exp(- self.p_hat.value))) - self.y.value)
-        #self.gradTop = Variable(self.y.value/self.p_hat.value)
+        #self.p_hat.grad = (1/m) * ((1/(1+np.exp(- self.p_hat.value))) - self.y.value)
+        self.gradTop = Variable(self.y.value/self.y_hat.value)
+        
+        
+        
+        
+        
         
 def dataGenByExpression(expr,low_bound,high_bound,length):    
 

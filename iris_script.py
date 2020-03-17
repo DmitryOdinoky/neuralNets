@@ -55,7 +55,7 @@ Y_train = Y.T
 # define training constants
 learning_rate = 0.0001
 
-number_of_epochs = 500
+number_of_epochs = 120
 
 np.random.seed(18) # set seed value so that the results are reproduceable
 
@@ -72,7 +72,15 @@ A2 = toolset_new.LayerSigmoid()
 
 #------ LAYER-3 ----- define output layer that take is values from 2nd hidden layer
 Z3 = toolset_new.LayerLinear(in_features=32, out_features=3)
+
 A3 = toolset_new.LayerSigmoid()
+
+
+
+SM = toolset_new.LayerSoftmaxV2(in_features=3, out_features=1)
+
+
+
 
 # see what random weights and bias were selected and their shape 
 # print(Z1.params)
@@ -82,7 +90,7 @@ A3 = toolset_new.LayerSigmoid()
 
 #%%
 
-neural_net = [Z1,A1,Z2,A2,Z3,A3] 
+neural_net = [Z1,A1,Z2,A2,Z3,A3,SM] 
     
 #%%
 
@@ -126,8 +134,14 @@ for epoch in range(number_of_epochs):
 
 
         loss_func.backward()
+        
+        
+        SM.backward()
 
-        A3.backward()
+        #A3.backward()
+        
+     
+        
         Z3.backward()
 
         A2.backward()
