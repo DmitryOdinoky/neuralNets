@@ -35,7 +35,7 @@ dataToTest = dataExpected[130:150, :]
 
 #%%
 
-batch_size = 3
+batch_size = 4
 
 dataset = []    
 
@@ -63,7 +63,7 @@ np.random.seed(18) # set seed value so that the results are reproduceable
 #               (input)--> [Linear->Sigmoid] -> [Linear->Sigmoid]->[Linear->Sigmoid] -->(output)  
 
 #------ LAYER-1 ----- define hidden layer that takes in training data 
-Z1 = toolset_new.LayerLinear(in_features=2, out_features=64)
+Z1 = toolset_new.LayerLinear(in_features=4, out_features=64)
 A1 = toolset_new.LayerSigmoid()
 
 #------ LAYER-2 ----- define output layer that take is values from hidden layer
@@ -73,11 +73,13 @@ A2 = toolset_new.LayerSigmoid()
 #------ LAYER-3 ----- define output layer that take is values from 2nd hidden layer
 Z3 = toolset_new.LayerLinear(in_features=32, out_features=3)
 
-A3 = toolset_new.LayerSigmoid()
+
 
 
 
 SM = toolset_new.LayerSoftmaxV2(in_features=3, out_features=1)
+
+#A3 = toolset_new.LayerSigmoid()
 
 
 
@@ -90,7 +92,7 @@ SM = toolset_new.LayerSoftmaxV2(in_features=3, out_features=1)
 
 #%%
 
-neural_net = [Z1,A1,Z2,A2,Z3,A3,SM] 
+neural_net = [Z1,A1,Z2,A2,Z3,SM] 
     
 #%%
 
@@ -100,7 +102,7 @@ counter = 0
 
 loss_func = CrossEntropy()
 
-#loss_func = MSE_Loss()
+#oss_func = MSE_Loss()
 
 for epoch in range(number_of_epochs):
     
@@ -114,15 +116,21 @@ for epoch in range(number_of_epochs):
         np.random.shuffle(batch)
 
 
-        X = batch[:,0:2]
-        Y = batch[:,2:3]
+        X = batch[:,0:4]
+        Y = batch[:,3:4]
+        
+       
 
         # ------------------------- forward-prop -------------------------
         
     
         out = Variable(X)
         for layer in neural_net:
-             out = layer.forward(out)
+              out = layer.forward(out)
+              
+              
+             
+             
 
         # ---------------------- Compute Cost ----------------------------
 
@@ -139,9 +147,6 @@ for epoch in range(number_of_epochs):
         SM.backward()
 
         #A3.backward()
-        
-     
-        
         Z3.backward()
 
         A2.backward()
@@ -155,7 +160,7 @@ for epoch in range(number_of_epochs):
         stuffToUpdate = []
         
         for item in neural_net:
-            if isinstance(item, (toolset_new.LayerLinear)):
+            if isinstance(item, (toolset_new.LayerLinear,toolset_new.LayerSoftmaxV2)):
                 stuffToUpdate.append(item)
             elif isinstance(item, str):
                 pass

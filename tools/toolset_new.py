@@ -54,7 +54,7 @@ class LayerSigmoid(object):
         return self.output
     
     def backward(self):
-        y = self.func(self.x.value)
+        y = self.func(self.output.value)
         self.x.grad = (y *(1.0 - y)) * self.output.grad
         
 class MSE_Loss:
@@ -115,13 +115,15 @@ class LayerSoftmaxV2(object):
     
     def forward(self, x):
       self.x = x
+      
+      
       self.output = Variable(
-          self.func(x.value))
+          self.func(np.matmul(x.value, self.w.value) + self.b.value))
       return self.output
         
     def backward(self):
         y = self.func(self.x.value)
-        self.x.grad = (y *(1.0 - y)) * self.output.grad
+        self.x.grad = y * (1 - self.output.grad)
     
     
         
@@ -143,7 +145,7 @@ class CrossEntropy:
         self.y = y
         self.y_hat = y_hat
         
-        #self.gradTop = Variable((-1/m) * np.sum(np.maximum(self.p_hat.value, 0) - self.p_hat.value * self.y.value + np.log(1+ np.exp(- np.abs(self.p_hat.value)))))
+        #self.gradTop = Variable((-1/m) * np.sum(np.maximum(self.y_hat.value, 0) - self.y_hat.value * self.y.value + np.log(1+ np.exp(- np.abs(self.y_hat.value)))))
         self.gradTop = Variable(-np.sum(self.y.value*np.log(self.y_hat.value)))
         
 
@@ -153,7 +155,7 @@ class CrossEntropy:
         
         m = np.shape(self.y.value)[0]
         
-        #self.p_hat.grad = (1/m) * ((1/(1+np.exp(- self.p_hat.value))) - self.y.value)
+        #self.y_hat.grad = (1/m) * ((1/(1+np.exp(- self.y_hat.value))) - self.y.value)
         self.gradTop = Variable(self.y.value/self.y_hat.value)
         
         
