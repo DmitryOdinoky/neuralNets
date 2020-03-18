@@ -122,7 +122,8 @@ class LayerSoftmaxV2(object):
         
     def backward(self):
         y = self.func(self.x.value)
-        self.x.grad = y * (1 - y)
+        
+        self.x.grad = y * (1 - self.output.grad)
     
     
         
@@ -145,7 +146,7 @@ class CrossEntropy:
         self.y_hat = y_hat
         
         #self.gradTop = Variable((-1/m) * np.sum(np.maximum(self.y_hat.value, 0) - self.y_hat.value * self.y.value + np.log(1+ np.exp(- np.abs(self.y_hat.value)))))
-        self.gradTop = Variable(-np.sum(self.y.value*np.log(self.y_hat.value)))
+        self.gradTop = Variable(np.sum(self.y.value*np.log(self.y_hat.value)))
         
 
         return self.gradTop

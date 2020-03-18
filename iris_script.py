@@ -35,7 +35,7 @@ dataToTest = dataExpected[130:150, :]
 
 #%%
 
-batch_size = 4
+batch_size = 5
 
 dataset = []    
 
@@ -74,10 +74,7 @@ A2 = toolset_new.LayerSigmoid()
 Z3 = toolset_new.LayerLinear(in_features=32, out_features=3)
 
 
-
-
-
-SM = toolset_new.LayerSoftmaxV2(in_features=3, out_features=1)
+SM = toolset_new.LayerSoftmaxV2(in_features=3, out_features=3)
 
 #A3 = toolset_new.LayerSigmoid()
 
@@ -118,8 +115,7 @@ for epoch in range(number_of_epochs):
 
         X = batch[:,0:4]
         Y = batch[:,3:4]
-        
-       
+
 
         # ------------------------- forward-prop -------------------------
         
@@ -127,10 +123,6 @@ for epoch in range(number_of_epochs):
         out = Variable(X)
         for layer in neural_net:
               out = layer.forward(out)
-              
-              
-             
-             
 
         # ---------------------- Compute Cost ----------------------------
 
