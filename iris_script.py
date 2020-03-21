@@ -41,18 +41,11 @@ dataset = []
 for i in range(0, len(dataToTrain), batch_size):
     dataset.append(dataToTrain[i:i+batch_size])
 
-#%%
 
-X = dataset[0][:,0:4]
-Y = dataset[0][:,4]
+# X = dataset[0][:,0:4]
+# Y = dataset[0][:,4]
     
 
-#%%
-
-Y = np.array(toolset_new.convert_to_probdist(Y))
-
-X_train = X.T
-Y_train = Y.T
 
 #%%
 
@@ -109,7 +102,9 @@ for epoch in range(number_of_epochs):
 
 
         X = batch[:,0:4]
-        Y = batch[:,3:4]
+        Y = batch[:,4]
+        Y = np.array(toolset_new.convert_to_probdist(Y))
+      
 
 
         # ------------------------- forward-prop -------------------------
