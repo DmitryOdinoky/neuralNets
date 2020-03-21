@@ -141,8 +141,8 @@ for epoch in range(number_of_epochs):
             linear.b.value += np.mean(linear.b.grad, axis=0) * learning_rate
             
     if (epoch % 10) == 0:
-        print("Cost at epoch#{}: {}".format(epoch, np.mean(loss.value)))
-        costs.append(np.mean(loss.value))
+        print("Cost at epoch#{}: {}".format(epoch, loss.grad))
+        costs.append(loss.grad)
         iterationz.append(counter)
 
 
