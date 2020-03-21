@@ -155,7 +155,7 @@ class CrossEntropy:
         self.y_hat = y_hat
         
         
-        self.gradTop = Variable(np.sum(self.y.value*np.log(self.y_hat.value)))
+        self.gradTop = Variable(-np.sum(self.y.value*np.log(self.y_hat.value)))
         
 
         return self.gradTop
