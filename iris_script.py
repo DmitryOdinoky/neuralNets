@@ -32,7 +32,6 @@ dataToTest = dataExpected[130:150, :]
 
 
 
-
 #%%
 
 batch_size = 5
@@ -46,6 +45,11 @@ for i in range(0, len(dataToTrain), batch_size):
 
 X = dataset[0][:,0:4]
 Y = dataset[0][:,4]
+    
+
+#%%
+
+Y = np.array(toolset_new.convert_to_probdist(Y))
 
 X_train = X.T
 Y_train = Y.T
@@ -59,8 +63,7 @@ number_of_epochs = 400
 
 np.random.seed(18) # set seed value so that the results are reproduceable
 
-# Our network architecture has the shape: 
-#               (input)--> [Linear->Sigmoid] -> [Linear->Sigmoid]->[Linear->Sigmoid] -->(output)  
+
 
 #------ LAYER-1 ----- define hidden layer that takes in training data 
 Z1 = toolset_new.LayerLinear(in_features=4, out_features=64)
@@ -74,17 +77,9 @@ A2 = toolset_new.LayerSigmoid()
 Z3 = toolset_new.LayerLinear(in_features=32, out_features=3)
 
 
-SM = toolset_new.LayerSoftmaxV2(in_features=3, out_features=3)
+SM = toolset_new.LayerSoftmaxV2()
 
 #A3 = toolset_new.LayerSigmoid()
-
-
-
-
-# see what random weights and bias were selected and their shape 
-# print(Z1.params)
-# print(Z2.params)
-# print(Z3.params)
 
 
 #%%
@@ -119,8 +114,9 @@ for epoch in range(number_of_epochs):
 
         # ------------------------- forward-prop -------------------------
         
-    
+        
         out = Variable(X)
+        
         for layer in neural_net:
               out = layer.forward(out)
 
@@ -128,31 +124,19 @@ for epoch in range(number_of_epochs):
 
         loss = loss_func.forward(Variable(Y), out)
 
-        #print(f'loss: {loss.value}')
-
         # ------------------------- back-prop ----------------------------
-
-
-        loss_func.backward()
         
-        
-        SM.backward()
+        rev_layers = neural_net[::-1]
 
-        #A3.backward()
-        Z3.backward()
-
-        A2.backward()
-        Z2.backward()
-
-        A1.backward()
-        Z1.backward()
+        for layer in rev_layers:
+              out = layer.backward()
 
         # ----------------------- Update weights and bias ----------------
         
         stuffToUpdate = []
         
         for item in neural_net:
-            if isinstance(item, (toolset_new.LayerLinear,toolset_new.LayerSoftmaxV2)):
+            if isinstance(item, (toolset_new.LayerLinear)):
                 stuffToUpdate.append(item)
             elif isinstance(item, str):
                 pass
@@ -165,19 +149,8 @@ for epoch in range(number_of_epochs):
         print("Cost at epoch#{}: {}".format(epoch, np.mean(loss.value)))
         costs.append(np.mean(loss.value))
         iterationz.append(counter)
-                
-                
-        
-        # See what the final weights and bias are training 
-        # print(Z1.params)
-        # print(Z2.params)
-        # print(Z3.params)
-   
+
 
 #%%
 
 plt.pyplot.scatter(iterationz, costs) # per epoch
-
-#%%
-
-

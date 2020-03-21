@@ -77,55 +77,64 @@ class MSE_Loss:
         
         
         
-class LayerSoftmax(object):
+# class LayerSoftmax(object):
     
-    def __init__self(self):
-           super().__init__()
-           self.x = None
-           self.output = None
+#     def __init__self(self):
+#            super().__init__()
+#            self.x = None
+#            self.output = None
            
-    def func(self, x):
-        exps = np.exp(x-np.max(x))
-        return exps/np.sum(exps)
+#     def func(self, x):
+#         exps = np.exp(x-np.max(x))
+#         return exps/np.sum(exps)
     
-    def forward(self, x):
-      self.x = x
-      self.output = Variable(
-          self.func(x.value))
-      return self.output
+#     def forward(self, x):
+#       self.x = x
+#       self.output = Variable(
+#           self.func(x.value))
+#       return self.output
         
-    def backward(self):
-        y = self.func(self.x.value)
-        self.x.grad = (y *(1.0 - y)) * self.output.grad
+#     def backward(self):
+#         y = self.func(self.x.value)
+#         self.x.grad = y * (1 - self.output.grad)
         
 
 class LayerSoftmaxV2(object):
     
-    def __init__(self, in_features, out_features):
+    def __init__(self):
         
-        self.w: Variable = Variable(np.random.uniform(low=-1,size=(in_features, out_features)))
-        self.b: Variable = Variable(np.zeros((out_features,)))
-        
+        super().__init__()
         self.x: Variable = None
         self.output: Variable = None
            
     def func(self, x):
-        exps = np.exp(x-np.max(x))
+        exps = np.exp(self.x.value-np.max(self.x.value))
         return exps/np.sum(exps)
     
     def forward(self, x):
       self.x = x
+      self.output = Variable(self.func(self.x.value))
       
-      self.output = Variable(
-          self.func(np.matmul(x.value, self.w.value) + self.b.value))
+      
       return self.output
         
     def backward(self):
-        y = self.func(self.x.value)
+            
+            #m = np.shape(self.y.value)[0]
+            
+        for idx in range(np.shape(self.output.value)[0]):
+            
+            J = np.zeros((np.shape(self.output.value)[1], np.shape(self.output.value)[1]))
+            
+            for i in range(np.shape(self.output.value)[1]):
+                for j in range(np.shape(self.output.value)[1]):
+                    if i == j:
+                        J[i,j] = self.output.value[idx][i] * (1-self.output.value[idx][j])
+                    else:
+                        J[i,j] = -self.output.value[idx][i] * self.output.value[idx][j]
+                    
+        self.x.grad[idx] = np.matmul(J, self.output.grad[idx])
         
-        self.x.grad = y * (1 - self.output.grad)
-    
-    
         
 
 
@@ -136,11 +145,11 @@ class CrossEntropy:
     def __init__(self):
         self.y: Variable = None
         self.y_hat: Variable = None
-        self.gradTop: Variable = None
+        
         
     def forward(self, y: Variable, y_hat: Variable):
         
-        m = np.shape(y.value)[0]
+        #m = np.shape(y.value)[0]
         
         self.y = y
         self.y_hat = y_hat
@@ -153,10 +162,10 @@ class CrossEntropy:
     
     def backward(self):
         
-        m = np.shape(self.y.value)[0]
+        #m = np.shape(self.y.value)[0]
         
         #self.y_hat.grad = (1/m) * ((1/(1+np.exp(- self.y_hat.value))) - self.y.value)
-        self.gradTop = Variable(self.y.value/self.y_hat.value)
+        self.y_hat = self.y.value/self.y_hat.value
         
         
         
@@ -181,6 +190,26 @@ def dataGenByExpression(expr,low_bound,high_bound,length):
     output = np.column_stack((x1_arr, x2_arr,answerz))
     
     return output
+
+def convert_to_probdist(vector):
+    
+    probdists = []
+
+    for row in vector:
+        
+        blank_probdist = np.zeros(3)
+        
+        if row == 0:
+            blank_probdist[0] = 1
+            probdists.append(blank_probdist)
+        elif row == 1:
+            blank_probdist[1] = 1
+            probdists.append(blank_probdist)
+        elif row == 2:
+            blank_probdist[2] = 1
+            probdists.append(blank_probdist)
+    
+    return probdists
 
 
     
