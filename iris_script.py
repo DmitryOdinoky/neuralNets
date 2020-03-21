@@ -121,6 +121,8 @@ for epoch in range(number_of_epochs):
 
         # ------------------------- back-prop ----------------------------
         
+        loss_func.backward()
+        
         rev_layers = neural_net[::-1]
 
         for layer in rev_layers:
@@ -144,8 +146,10 @@ for epoch in range(number_of_epochs):
         print("Cost at epoch#{}: {}".format(epoch, loss.value))
         costs.append(loss.value)
         iterationz.append(counter)
-
-
+        
 #%%
 
-plt.pyplot.scatter(iterationz, costs) # per epoch
+plt.pyplot.scatter(iterationz, costs)
+
+
+
