@@ -1,5 +1,7 @@
 import math
 
+
+
 import numpy as np
 
 
@@ -12,6 +14,73 @@ class Variable(object):
         if self.grad is None:
             self.grad = np.zeros_like(self.value)
         #assert self.value.shape == self.grad.shape
+            
+            
+class MyModel:
+    
+    def __init__(self):
+        
+        self.learning_rate = 0.0001
+        self.number_of_epochs = 400
+          
+        
+        self.Z1 = LayerLinear(in_features=4, out_features=64)
+        self.A1 = LayerSigmoid()
+
+        #------ LAYER-2 ----- 
+        self.Z2 = LayerLinear(in_features=64, out_features=32)
+        self.A2 = LayerSigmoid()
+
+        #------ LAYER-3 ----- 
+        self.Z3 = LayerLinear(in_features=32, out_features=3)
+
+        self.SM = LayerSoftmaxV2()  
+        
+        #------- GRAPH -------        
+        self.graph = [self.Z1, self.A1, self.Z2, self.A2, self.Z3, self.SM]
+        
+    def forward(self, dataset):
+        
+        self.out = Variable(dataset)
+        
+      
+
+        for layer in self.graph:
+          
+            self.out = layer.forward(self.out)
+
+
+        
+        return self.out
+    
+
+    def backward(self):
+
+        
+        rev_layers = self.graph[::-1]
+        
+        for layer in rev_layers:
+          
+            out = layer.backward()
+        
+        
+        
+        stuffToUpdate = []
+        
+        for item in self.graph:
+            if isinstance(item, (LayerLinear)):
+                stuffToUpdate.append(item)
+            elif isinstance(item, str):
+                pass
+        
+        for linear in stuffToUpdate:
+            linear.w.value += np.mean(linear.w.grad, axis=0) * self.learning_rate
+            linear.b.value += np.mean(linear.b.grad, axis=0) * self.learning_rate
+            
+    
+        
+        
+
 
 
 
@@ -99,22 +168,20 @@ class MSE_Loss:
 
 class LayerSoftmaxV2(object):
     
-    def __init__(self):
+    def _init_(self):
         
-        super().__init__()
+        super()._init_()
         self.x: Variable = None
         self.output: Variable = None
-           
-    def func(self, x):
-        exps = np.exp(self.x.value-np.max(self.x.value))
-        return Variable(exps/np.sum(exps))
+
     
     def forward(self, x):
-      self.x = x
-      self.output = self.func(self.x.value)
+        self.x = x
+        exps = np.exp(self.x.value - np.expand_dims(np.max(self.x.value, axis=1), axis=1))
+        self.output = Variable(exps / np.expand_dims(np.sum(exps, axis=1), axis=1))
+
       
-      
-      return self.output
+        return self.output
         
     def backward(self):
             
@@ -132,11 +199,6 @@ class LayerSoftmaxV2(object):
                         J[i,j] = -self.output.value[idx][i] * self.output.value[idx][j]
                     
         self.x.grad[idx] = np.matmul(J, self.output.grad[idx])
-        
-        
-
-
-
 
 
 
@@ -157,10 +219,10 @@ class CrossEntropy:
         self.y_hat = y_hat
         
         
-        self.gradTop = Variable(-np.sum(self.y.value*np.log(self.y_hat.value)))
+        self.output = Variable(-np.sum(self.y.value*np.log(self.y_hat.value)))
         
 
-        return self.gradTop
+        return self.output
     
     def backward(self):
         
