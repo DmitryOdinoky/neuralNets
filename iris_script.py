@@ -50,11 +50,11 @@ for i in range(0, len(dataToTrain), batch_size):
 #%%
 
 # define training constants
-learning_rate = 0.0001
+learning_rate = 0.001
 
 number_of_epochs = 400
 
-np.random.seed(18) # set seed value so that the results are reproduceable
+np.random.seed(16) # set seed value so that the results are reproduceable
 
 
 

@@ -11,7 +11,14 @@ class Variable(object):
         
         if self.grad is None:
             self.grad = np.zeros_like(self.value)
-        assert self.value.shape == self.grad.shape
+        #assert self.value.shape == self.grad.shape
+
+
+
+
+
+
+
 
 class LayerLinear:
     def __init__(self, in_features, out_features):
@@ -36,6 +43,12 @@ class LayerLinear:
         self.w.grad = np.matmul(np.expand_dims(self.x.value, axis=2), np.expand_dims(self.output.grad, axis=1))
         self.b.grad = 1*self.output.grad
 
+
+
+
+
+
+
         
 class LayerSigmoid(object):
     
@@ -57,6 +70,11 @@ class LayerSigmoid(object):
         y = self.func(self.output.value)
         self.x.grad = (y *(1.0 - y)) * self.output.grad
         
+        
+        
+        
+        
+        
 class MSE_Loss:
     
     def __init__(self):
@@ -74,29 +92,9 @@ class MSE_Loss:
     def backward(self):
         self.y_prim.grad = 2*(self.y.value - self.y_prim.value)
     
-        
-        
-        
-# class LayerSoftmax(object):
-    
-#     def __init__self(self):
-#            super().__init__()
-#            self.x = None
-#            self.output = None
-           
-#     def func(self, x):
-#         exps = np.exp(x-np.max(x))
-#         return exps/np.sum(exps)
-    
-#     def forward(self, x):
-#       self.x = x
-#       self.output = Variable(
-#           self.func(x.value))
-#       return self.output
-        
-#     def backward(self):
-#         y = self.func(self.x.value)
-#         self.x.grad = y * (1 - self.output.grad)
+
+
+
         
 
 class LayerSoftmaxV2(object):
@@ -109,11 +107,11 @@ class LayerSoftmaxV2(object):
            
     def func(self, x):
         exps = np.exp(self.x.value-np.max(self.x.value))
-        return exps/np.sum(exps)
+        return Variable(exps/np.sum(exps))
     
     def forward(self, x):
       self.x = x
-      self.output = Variable(self.func(self.x.value))
+      self.output = self.func(self.x.value)
       
       
       return self.output
@@ -122,12 +120,12 @@ class LayerSoftmaxV2(object):
             
             #m = np.shape(self.y.value)[0]
             
-        for idx in range(np.shape(self.output.value)[0]):
+        for idx in range(self.output.value.shape[0]):
             
-            J = np.zeros((np.shape(self.output.value)[1], np.shape(self.output.value)[1]))
+            J = np.zeros((self.output.value.shape[1], self.output.value.shape[1]))
             
-            for i in range(np.shape(self.output.value)[1]):
-                for j in range(np.shape(self.output.value)[1]):
+            for i in range(self.output.value.shape[1]):
+                for j in range(self.output.value.shape[1]):
                     if i == j:
                         J[i,j] = self.output.value[idx][i] * (1-self.output.value[idx][j])
                     else:
@@ -138,16 +136,20 @@ class LayerSoftmaxV2(object):
         
 
 
+
+
+
+
 class CrossEntropy:
     
     #compute stable cross-entropy
     
     def __init__(self):
-        self.y: Variable = None
-        self.y_hat: Variable = None
+        self.y = None
+        self.y_hat = None
         
         
-    def forward(self, y: Variable, y_hat: Variable):
+    def forward(self, y, y_hat):
         
         #m = np.shape(y.value)[0]
         
@@ -166,6 +168,12 @@ class CrossEntropy:
         
 
         self.y_hat.grad = self.y.value/self.y_hat.value
+        
+        
+        
+        
+        
+        
         
         
         
