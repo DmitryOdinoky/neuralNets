@@ -21,8 +21,8 @@ class MyModel:
     def __init__(self):
         
         self.learning_rate = 0.0001
-        self.number_of_epochs = 400
-          
+      
+        self.out = None
         
         self.Z1 = LayerLinear(in_features=4, out_features=64)
         self.A1 = LayerSigmoid()

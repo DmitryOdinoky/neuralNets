@@ -50,7 +50,7 @@ for i in range(0, len(dataToTrain), batch_size):
 #%%
 
 # define training constants
-learning_rate = 0.0001
+learning_rate = 0.001
 
 number_of_epochs = 400
 

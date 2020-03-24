@@ -50,14 +50,9 @@ for i in range(0, len(dataToTrain), batch_size):
 
 #%%
 
-learning_rate = 0.0001
-
 number_of_epochs = 400
 
 np.random.seed(16) # set seed value so that the results are reproduceable
-
-
-
 
 
 #%%
@@ -114,6 +109,30 @@ for epoch in range(number_of_epochs):
 plt.pyplot.scatter(iterationz, costs)
 
 
+
+
+
+#%% Testing
+
+X_test = dataToTest[:,0:4]
+
+predict = instance.forward(X_test)
+
+predicted = predict.value
+
+#%% Evaluation
+
+
+argmaxed = predicted.argmax(1)
+groundTruth = dataToTest[:,4]    
+
+equalcheck = groundTruth - argmaxed
+
+extracted = np.nonzero(equalcheck)
+
+errorProbability = np.shape(extracted)[1]/np.shape(argmaxed)[0]
+
+print("Error probability --- > {}".format(errorProbability))
 
 
 
