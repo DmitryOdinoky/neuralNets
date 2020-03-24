@@ -126,9 +126,7 @@ predicted = predict.value
 argmaxed = predicted.argmax(1)
 groundTruth = dataToTest[:,4]    
 
-equalcheck = groundTruth - argmaxed
-
-extracted = np.nonzero(equalcheck)
+extracted = np.nonzero(groundTruth - argmaxed)
 
 errorProbability = np.shape(extracted)[1]/np.shape(argmaxed)[0]
 
