@@ -58,7 +58,7 @@ for i in range(0, len(dataToTest), batch_size):
 
 #%%
 
-number_of_epochs = 4000
+number_of_epochs = 800
 
 np.random.seed(32) # set seed value so that the results are reproduceable
 
