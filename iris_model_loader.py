@@ -191,5 +191,6 @@ ax.set_title('Simple plot')
 # Create two subplots and unpack the output array immediately
 f, (ax1, ax2) = plt.pyplot.subplots(2, 1, sharey=False)
 ax1.scatter(iterationz, costs)
-#ax1.set_title('Sharing Y axis')
+ax1.set_title('Loss vs Accuracy')
 ax2.scatter(iterationz, accuracies)
+
