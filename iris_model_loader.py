@@ -58,7 +58,7 @@ for i in range(0, len(dataToTest), batch_size):
 
 #%%
 
-number_of_epochs = 200
+number_of_epochs = 4000
 
 np.random.seed(32) # set seed value so that the results are reproduceable
 
@@ -76,7 +76,7 @@ loss_func = CrossEntropy()
 #oss_func = MSE_Loss()
 
 instance = MyModel()
-instance_2 = copy.deepcopy(instance)
+
 
 for epoch in range(number_of_epochs):
     
@@ -98,6 +98,8 @@ for epoch in range(number_of_epochs):
         
         out = instance.forward(X_train)
         loss = loss_func.forward(Variable(Y_train), out)
+        
+        instance_2 = copy.deepcopy(instance)
         
    
         
@@ -140,7 +142,7 @@ for epoch in range(number_of_epochs):
         print("Accuracy --- > {}".format(accuracy))
         #print("Snapshot --- > {} ---- > {}".format(instance.out.value[0,0],instance_2.out.value[0,0]))
         costs.append(loss.value)
-        accuracies.append(accuracy)
+        accuracies.append(accuracy*10)
         #extractionz.append(extracted)
       
         
