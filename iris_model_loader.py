@@ -32,8 +32,7 @@ np.random.shuffle(dataExpected)
 dataToTrain = dataExpected[0:130, :]
 dataToTest = dataExpected[130:150, :]
 
-np.random.shuffle(dataToTest)
-np.random.shuffle(dataToTrain)
+
 
 
 #%%
@@ -58,7 +57,7 @@ for i in range(0, len(dataToTest), batch_size):
 
 #%%
 
-number_of_epochs = 800
+number_of_epochs = 4000
 
 np.random.seed(32) # set seed value so that the results are reproduceable
 
@@ -99,15 +98,15 @@ for epoch in range(number_of_epochs):
         out = instance.forward(X_train)
         loss = loss_func.forward(Variable(Y_train), out)
         
-        instance_2 = copy.deepcopy(instance)
-        
-   
+        np.random.shuffle(dataToTest)
         
         ground_truth = dataToTest[:,4]
         ground_truth = np.array(toolset_new.convert_to_probdist(ground_truth))
         
-       
+        instance_2 = copy.deepcopy(instance)
         
+        
+
 
         predict = instance_2.forward(dataToTest[:,0:4])
         predicted = predict.value
@@ -142,7 +141,7 @@ for epoch in range(number_of_epochs):
         print("Accuracy --- > {}".format(accuracy))
         #print("Snapshot --- > {} ---- > {}".format(instance.out.value[0,0],instance_2.out.value[0,0]))
         costs.append(loss.value)
-        accuracies.append(accuracy*10)
+        accuracies.append(accuracy)
         #extractionz.append(extracted)
       
         
@@ -150,8 +149,8 @@ for epoch in range(number_of_epochs):
         
 #%%
 
-plt.pyplot.scatter(iterationz, costs)
-plt.pyplot.scatter(iterationz, accuracies)
+#3plt.pyplot.scatter(iterationz, costs)
+#plt.pyplot.scatter(iterationz, accuracies)
 
 
 
@@ -175,3 +174,22 @@ plt.pyplot.scatter(iterationz, accuracies)
 # accuracy = 1 - np.size(extracted)/np.size(argmaxed)
 
 # print("Accuracy --- > {}".format(accuracy))
+
+
+#%%
+
+x = np.linspace(0, 2*np.pi, 400)
+y = np.sin(x**2)
+
+# Create just a figure and only one subplot
+fig, ax = plt.pyplot.subplots()
+ax.plot(x, y)
+ax.set_title('Simple plot')
+
+#%%
+
+# Create two subplots and unpack the output array immediately
+f, (ax1, ax2) = plt.pyplot.subplots(2, 1, sharey=False)
+ax1.scatter(iterationz, costs)
+#ax1.set_title('Sharing Y axis')
+ax2.scatter(iterationz, accuracies)
