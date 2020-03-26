@@ -33,6 +33,7 @@ dataToTrain = dataExpected[0:130, :]
 dataToTest = dataExpected[130:150, :]
 
 np.random.shuffle(dataToTest)
+np.random.shuffle(dataToTrain)
 
 
 #%%
@@ -98,20 +99,20 @@ for epoch in range(number_of_epochs):
         out = instance.forward(X_train)
         loss = loss_func.forward(Variable(Y_train), out)
         
-        ind = np.random.randint(0,len(test_dataset))
+   
         
-        ground_truth = test_dataset[ind][:,4]
+        ground_truth = dataToTest[:,4]
         ground_truth = np.array(toolset_new.convert_to_probdist(ground_truth))
         
-        sample = test_dataset[ind]
+       
         
 
-        predict = instance_2.forward(sample[:,0:4])
+        predict = instance_2.forward(dataToTest[:,0:4])
         predicted = predict.value
         
         correct = 0
         total = 0
-        for i in range(len(sample)):
+        for i in range(len(dataToTest)):
             act_label = np.argmax(ground_truth[i]) # act_label = 1 (index)
             pred_label = np.argmax(predicted[i]) # pred_label = 1 (index)
             if(act_label == pred_label):
@@ -172,9 +173,3 @@ plt.pyplot.scatter(iterationz, accuracies)
 # accuracy = 1 - np.size(extracted)/np.size(argmaxed)
 
 # print("Accuracy --- > {}".format(accuracy))
-
-
-
-
-
-
