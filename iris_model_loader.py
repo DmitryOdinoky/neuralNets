@@ -176,15 +176,6 @@ for epoch in range(number_of_epochs):
 # print("Accuracy --- > {}".format(accuracy))
 
 
-#%%
-
-x = np.linspace(0, 2*np.pi, 400)
-y = np.sin(x**2)
-
-# Create just a figure and only one subplot
-fig, ax = plt.pyplot.subplots()
-ax.plot(x, y)
-ax.set_title('Simple plot')
 
 #%%
 
