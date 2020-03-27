@@ -96,6 +96,7 @@ for epoch in range(number_of_epochs):
         
         
         out = instance.forward(X_train)
+        
         loss = loss_func.forward(Variable(Y_train), out)
         
         np.random.shuffle(dataToTest)
