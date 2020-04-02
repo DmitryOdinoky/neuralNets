@@ -10,7 +10,7 @@ import numpy.core.defchararray as np_f
 import matplotlib as plt
 import pickle
 
-import sklearn
+import sklearn.metrics
 
 
 with open('datasets/iris.csv', newline='') as csvfile:
@@ -123,9 +123,7 @@ for epoch in range(number_of_epochs):
 
            
            #instance_2 = copy.deepcopy(instance)
-           
-           
-          
+
            
            predict = actual_model.forward(X_test)
            predicted = predict.value
