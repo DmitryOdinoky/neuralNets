@@ -61,7 +61,7 @@ class MyModel:
         
         for layer in rev_layers:
           
-            out = layer.backward()
+            layer.backward()
         
         
         
@@ -77,15 +77,6 @@ class MyModel:
             linear.w.value += np.mean(linear.w.grad, axis=0) * self.learning_rate
             linear.b.value += np.mean(linear.b.grad, axis=0) * self.learning_rate
             
-    
-        
-        
-
-
-
-
-
-
 
 
 
@@ -113,11 +104,6 @@ class LayerLinear:
         self.b.grad = 1*self.output.grad
 
 
-
-
-
-
-
         
 class LayerSigmoid(object):
     
@@ -139,11 +125,7 @@ class LayerSigmoid(object):
         y = self.func(self.output.value)
         self.x.grad = (y *(1.0 - y)) * self.output.grad
         
-        
-        
-        
-        
-        
+  
 class MSE_Loss:
     
     def __init__(self):
@@ -161,10 +143,7 @@ class MSE_Loss:
     def backward(self):
         self.y_prim.grad = 2*(self.y.value - self.y_prim.value)
     
-
-
-
-        
+  
 
 class LayerSoftmaxV2(object):
     
@@ -231,16 +210,7 @@ class CrossEntropy:
 
         self.y_hat.grad = self.y.value/self.y_hat.value
         
-        
-        
-        
-        
-        
-        
-        
-        
-        
-        
+     
         
 def dataGenByExpression(expr,low_bound,high_bound,length):    
 

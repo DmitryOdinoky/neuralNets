@@ -110,7 +110,7 @@ class Net(nn.Module):
         
         for layer in rev_layers:
           
-            out = layer.backward()
+            layer.backward()
            
            
            
