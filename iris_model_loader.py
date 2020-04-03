@@ -66,9 +66,14 @@ np.random.seed(32) # set seed value so that the results are reproduceable
 
 #%%
 
-costs = []
-accuracies = []
-f1_scores = []
+train_costs = []
+test_costs =[]
+train_accuracies = []
+test_accuracies = []
+
+train_f1_scores = []
+test_f1_scores = []
+
 iterationz = []
 extractionz = []
 counter = 0
@@ -102,8 +107,28 @@ for epoch in range(number_of_epochs):
             
             
             out = actual_model.forward(X_train)
-            loss = loss_func.forward(Variable(Y_train), out)           
-    
+            train_loss = loss_func.forward(Variable(Y_train), out)
+            
+            output = out.value
+            
+            correct = 0
+            total = 0
+            true = []
+            pred = []
+           
+           
+            for i in range(len(batch)):
+                act_label = np.argmax(Y_train[i]) # act_label = 1 (index)
+                pred_label = np.argmax(output[i]) # pred_label = 1 (index)
+                true.append(act_label)
+                pred.append(pred_label)
+                if(act_label == pred_label):
+                    correct += 1
+                total += 1
+                
+            f1_train = sklearn.metrics.f1_score(true, pred, average='macro')
+            
+            
             loss_func.backward()  
             actual_model.backward()
             
@@ -119,14 +144,16 @@ for epoch in range(number_of_epochs):
            
            
            out = actual_model.forward(X_test)
-           loss = loss_func.forward(Variable(Y_test), out)
+           test_loss = loss_func.forward(Variable(Y_test), out)
+    
 
-           
-           #instance_2 = copy.deepcopy(instance)
+ 
 
            
            predict = actual_model.forward(X_test)
            predicted = predict.value
+           
+           
            
            
            
@@ -146,18 +173,24 @@ for epoch in range(number_of_epochs):
                total += 1
                
         
-           f1 = sklearn.metrics.f1_score(true, pred, average='macro')
+           f1_test = sklearn.metrics.f1_score(true, pred, average='macro')
            accuracy = (correct/total)
 
                 
     if (epoch % 10) == 0:
-        print("Cost at epoch#{}: {}".format(epoch, loss.value))
+        print("Cost at epoch#{}: {}".format(epoch, train_loss.value))
         print("Accuracy --- > {}".format(accuracy))
-        print("F1 --- > {}".format(f1))
+        print("F1 --- > {}".format(f1_test))
        
-        costs.append(loss.value)
-        accuracies.append(accuracy)
-        f1_scores.append(f1)
+        train_costs.append(train_loss.value)
+        test_costs.append(test_loss.value)
+        
+        test_accuracies.append(accuracy)
+        
+        train_f1_scores.append(f1_train)
+        test_f1_scores.append(f1_test)
+        
+        
         #extractionz.append(extracted)
       
         
@@ -171,12 +204,25 @@ for epoch in range(number_of_epochs):
 
 
 # Create two subplots and unpack the output array immediately
-f, (ax1, ax2, ax3) = plt.pyplot.subplots(3, 1, sharey=False)
-ax1.scatter(iterationz, costs)
-ax1.set_title('Loss vs Accuracy vs F1')
-ax2.scatter(iterationz, accuracies)
-ax3.scatter(iterationz, f1_scores)
+f, (ax1, ax2) = plt.pyplot.subplots(2, 1, sharey=False)
+sc1 = ax1.scatter(iterationz, train_costs)
+
+
+sc2 = ax1.scatter(iterationz, test_costs)
+ax1.set_title('Loss (top) vs F1 (bottom)')
+sc3 = ax2.scatter(iterationz, test_f1_scores)
+sc4 = ax2.scatter(iterationz, train_f1_scores)
 
 ax1.set_xticks([])
 ax2.set_xticks([])
+
+ax1.legend((sc1, sc2), ('train', 'test'), loc='upper right', shadow=True)
+
+
+# plt.pyplot.legend((train_costs, test_costs, test_f1_scores, train_f1_scores),
+#            ('Train costs', 'Test costs', 'Lo', 'Test F1 scores', 'Train F1 scores'),
+#            scatterpoints=1,
+#            loc='lower left',
+#            ncol=3,
+#            fontsize=8)
 
