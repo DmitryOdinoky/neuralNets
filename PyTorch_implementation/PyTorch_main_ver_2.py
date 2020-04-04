@@ -174,27 +174,7 @@ ax1.set_xticks([])
 
 ax1.legend((sc1, sc2), ('train', 'test'), loc='upper right', shadow=True)
             
-            
-    
-
-
-
-
-
-
-
-
- 
-    
-
-
-
-        
-        
-    
-    
-        
-        
+               
         
         
 #%%
