@@ -90,20 +90,20 @@ for epoch in range(number_of_epochs):
     
     counter+=1
     
-    # np.random.shuffle(dataset)
+
     
     for dataset in [train_dataset, test_dataset]:
       
+        # --------------- TRAIN DATA, forward, loss & f1, backward
 
         for batch in train_dataset:
     
-            #np.random.shuffle(batch)
+
     
             X_train = batch[:,0:4]
             Y_train = batch[:,4]
             Y_train = np.array(toolset_new.convert_to_probdist(Y_train))
-    
-            # ------------------------- forward-prop -------------------------    
+
             
             
             out = actual_model.forward(X_train)
@@ -132,30 +132,24 @@ for epoch in range(number_of_epochs):
             loss_func.backward()  
             actual_model.backward()
             
+            
+        # --------------- TEST DATA, forward, loss & f1
+            
         for batch in test_dataset:
-           
-           #np.random.shuffle(batch)
+
            
            X_test = batch[:,0:4]
            Y_test = batch[:,4]
            Y_test = np.array(toolset_new.convert_to_probdist(Y_test))
-           
-           # ------------------------- forward-prop -------------------------    
-           
+
            
            out = actual_model.forward(X_test)
            test_loss = loss_func.forward(Variable(Y_test), out)
-    
-
- 
 
            
            predict = actual_model.forward(X_test)
            predicted = predict.value
-           
-           
-           
-           
+
            
            correct = 0
            total = 0

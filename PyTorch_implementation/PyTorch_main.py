@@ -14,8 +14,47 @@ import torchvision
 from torchvision import transforms
 
 
+
 import numpy as np
 import numpy.core.defchararray as np_f
+
+
+
+import sklearn.metrics
+
+from torch.autograd import Variable
+
+#%%
+
+class CrossEntropyCustom:
+    
+    #compute stable cross-entropy
+    
+    def __init__(self):
+        self.y = None
+        self.y_hat = None
+        
+        
+    def forward(self, y, y_hat):
+        
+        #m = np.shape(y.value)[0]
+        
+        self.y = y
+        self.y_hat = y_hat
+        
+        
+        self.output = torch.Tensor(-np.sum(self.y*np.log(self.y_hat)))
+        
+
+        return self.output
+    
+    def backward(self):
+        
+        #m = np.shape(self.y.value)[0]
+        
+
+        self.y_hat.grad =  torch.Tensor(self.y/self.y_hat)
+
 
 
 
@@ -88,7 +127,7 @@ class Net(nn.Module):
         self.Z2 = nn.Linear(64,32)
         self.A2 = nn.ReLU()
         self.Z3 = nn.Linear(32,3)
-        self.SM = nn.Softmax()
+        self.SM = nn.Softmax(dim=1)
         
         self.graph = [self.Z1,self.A1,self.Z2,self.A2,self.Z3,self.SM]
   
@@ -113,7 +152,6 @@ class Net(nn.Module):
             layer.backward()
            
            
-           
         stuffToUpdate = []
                
         for item in self.graph:
@@ -127,8 +165,9 @@ class Net(nn.Module):
                 linear.b.value += np.mean(linear.b.grad, axis=0) * self.learning_rate
         
         
-instance = Net()
-print(instance)
+myModel = Net()
+
+print(myModel)
 
 
 
@@ -136,12 +175,16 @@ print(instance)
 
 #%%
 
-## backprop in 3 epochs
+## backprop in n epochs
 
-optimizer = optim.Adam(instance.parameters(), lr=0.001)
+optimizer = optim.Adam(myModel.parameters(), lr=0.001)
 np.random.seed(32)
 
-number_of_epochs = 4000
+number_of_epochs = 200
+
+#loss_func = nn.CrossEntropyLoss()
+loss_func = CrossEntropyCustom()
+
 
 costs = []
 accuracies = []
@@ -150,76 +193,109 @@ extractionz = []
 counter = 0
 
 
-
 for epoch in range(number_of_epochs):
+    
     counter+=1
     
-    # np.random.shuffle(dataset)
-    
-    for batch in train_dataset:
-        
-        X_train = batch[:,0:4]
-        Y_train = batch[:,4]
-        Y_train = np.array(convert_to_probdist(Y_train))
-        
-        
-        output = instance.forward(torch.FloatTensor(X_train))
-        loss = F.nll_loss(output, instance.forward(torch.FloatTensor(X_train)))
-     
-        #optimizer.step()
-        
-        costs.append(loss.item())    
-        print(loss)
-    
-        np.random.shuffle(dataToTest)
-    
-        ground_truth = dataToTest[:,4]
-        ground_truth = np.array(convert_to_probdist(ground_truth))
-        
-        instance_2 = copy.deepcopy(instance)
-    
-    
-    
-    
-        predict = instance_2.forward(dataToTest[:,0:4])
-        predicted = predict.value
-        
-        correct = 0
-        total = 0
-        
-        for i in range(len(dataToTest)):
-            act_label = np.argmax(ground_truth[i]) # act_label = 1 (index)
-            pred_label = np.argmax(predicted[i]) # pred_label = 1 (index)
-            if(act_label == pred_label):
-                correct += 1
-            total += 1
-        accuracy = (correct/total)
-        
-        # argmaxed = predicted.argmax(1)
-        # extracted = np.nonzero(ground_truth - argmaxed)
-        # accuracy = np.size(extracted[0])/np.size(argmaxed)
-        
-        
-        loss.backward()
-        
-        instance.backward()
 
-
-
-
-
-
-
-    if (epoch % 10) == 0:
-        print("Cost at epoch#{}: {}".format(epoch, loss.value))
-        print("Accuracy --- > {}".format(accuracy))
-    #print("Snapshot --- > {} ---- > {}".format(instance.out.value[0,0],instance_2.out.value[0,0]))
-        costs.append(loss.value)
-        accuracies.append(accuracy)
-    #extractionz.append(extracted)
+    
+    for dataset in [train_dataset, test_dataset]:
       
+        # --------------- TRAIN DATA, forward, loss & f1, backward
+
+        for batch in train_dataset:
     
-        iterationz.append(counter)
+
+    
+            X_train = batch[:,0:4]
+            Y_train = batch[:,4]
+            Y_train = np.array(convert_to_probdist(Y_train))
+
+            
+            
+            out = myModel.forward(torch.Tensor(X_train))
+            train_loss = loss_func.forward(Y_train, out)
+            
+    #         output = out.value
+            
+    #         correct = 0
+    #         total = 0
+    #         true = []
+    #         pred = []
+           
+           
+    #         for i in range(len(batch)):
+    #             act_label = np.argmax(Y_train[i]) # act_label = 1 (index)
+    #             pred_label = np.argmax(output[i]) # pred_label = 1 (index)
+    #             true.append(act_label)
+    #             pred.append(pred_label)
+    #             if(act_label == pred_label):
+    #                 correct += 1
+    #             total += 1
+                
+    #         f1_train = sklearn.metrics.f1_score(true, pred, average='macro')
+            
+            
+    #         loss_func.backward()  
+    #         myModel.backward()
+            
+            
+    #     # --------------- TEST DATA, forward, loss & f1
+            
+    #     for batch in test_dataset:
+
+           
+    #        X_test = batch[:,0:4]
+    #        Y_test = batch[:,4]
+    #        Y_test = np.array(toolset_new.convert_to_probdist(Y_test))
+
+           
+    #        out = actual_model.forward(X_test)
+    #        test_loss = loss_func.forward(Variable(Y_test), out)
+
+           
+    #        predict = actual_model.forward(X_test)
+    #        predicted = predict.value
+
+           
+    #        correct = 0
+    #        total = 0
+    #        true = []
+    #        pred = []
+           
+           
+    #        for i in range(len(batch)):
+    #            act_label = np.argmax(Y_test[i]) # act_label = 1 (index)
+    #            pred_label = np.argmax(predicted[i]) # pred_label = 1 (index)
+    #            true.append(act_label)
+    #            pred.append(pred_label)
+    #            if(act_label == pred_label):
+    #                correct += 1
+    #            total += 1
+               
+        
+    #        f1_test = sklearn.metrics.f1_score(true, pred, average='macro')
+    #        accuracy = (correct/total)
+
+                
+    # if (epoch % 10) == 0:
+    #     print("Cost at epoch#{}: {}".format(epoch, train_loss.value))
+    #     print("Accuracy --- > {}".format(accuracy))
+    #     print("F1 --- > {}".format(f1_test))
+       
+    #     train_costs.append(train_loss.value)
+    #     test_costs.append(test_loss.value)
+        
+    #     test_accuracies.append(accuracy)
+        
+    #     train_f1_scores.append(f1_train)
+    #     test_f1_scores.append(f1_test)
+        
+        
+     
+      
+        
+    #     iterationz.append(counter)
     
     
 

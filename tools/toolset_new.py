@@ -42,15 +42,11 @@ class MyModel:
     def forward(self, dataset):
         
         self.out = Variable(dataset)
-        
-      
 
         for layer in self.graph:
           
             self.out = layer.forward(self.out)
 
-
-        
         return self.out
     
 
@@ -63,8 +59,7 @@ class MyModel:
           
             layer.backward()
         
-        
-        
+
         stuffToUpdate = []
         
         for item in self.graph:
@@ -76,8 +71,6 @@ class MyModel:
         for linear in stuffToUpdate:
             linear.w.value += np.mean(linear.w.grad, axis=0) * self.learning_rate
             linear.b.value += np.mean(linear.b.grad, axis=0) * self.learning_rate
-            
-
 
 
 class LayerLinear:
