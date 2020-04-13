@@ -69,9 +69,9 @@ for i in range(0, len(dataToTest), batch_size):
 
 net = Net()
 
-criterion = nn.CrossEntropyLoss()# cross entropy loss
+loss = nn.CrossEntropyLoss()# cross entropy loss
 
-optimizer = torch.optim.SGD(net.parameters(), lr=0.01)
+optimizer = optim.Adam(myModel.parameters(), lr=0.001)
 
 
 number_of_epochs = 150
@@ -107,7 +107,7 @@ for epoch in range(number_of_epochs):
             optimizer.zero_grad()
             train_predict_out = net(train_X)
             
-            train_loss = criterion(train_predict_out, train_y)
+            train_loss = loss(train_predict_out, train_y)
             
             
             _, train_predict_y = torch.max(train_predict_out, 1)
@@ -131,7 +131,7 @@ for epoch in range(number_of_epochs):
             #optimizer.zero_grad()
             test_predict_out = net(test_X)
             
-            test_loss = criterion(test_predict_out, test_y)
+            test_loss = loss(test_predict_out, test_y)
             
             
             _, test_predict_y = torch.max(test_predict_out, 1)

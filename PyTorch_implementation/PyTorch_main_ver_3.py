@@ -60,6 +60,7 @@ net = torch.nn.Sequential(
 criterion = torch.nn.CrossEntropyLoss()
 
 criterion = nn.CrossEntropyLoss()# cross entropy loss
+
 optimizer = torch.optim.SGD(net.parameters(), lr=0.01)
 
 
