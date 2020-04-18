@@ -66,23 +66,29 @@ number_of_epochs = 50
 
 #np.random.seed(32) # set seed value so that the results are reproduceable
 
+var_dict = {'train_loss': [], \
+            'test_loss': [], \
+            'train_accuracies': [], \
+            'iterationz': [], \
+            'train_f1_scores': [], \
+            'test_f1_scores': [], \
+            'test_accuracies': [], 
+            }
 
-losses_train = []
-losses_test = []
-train_accuracies = []
-test_accuracies = []
-iterationz = []
-
-train_f1_scores = []
-test_f1_scores = []
 
 counter = 0
+stage = ''
 
 for epoch in range(number_of_epochs):
     
-    counter+=1
+    counter += 1
     
     for dataset in [train_dataset, test_dataset]:
+        
+        if dataset == train_dataset:
+            stage = 'train'
+        else:
+            stage = 'test'
         
         loss_epoch = []
         accuracy_epoch = []
@@ -106,13 +112,27 @@ for epoch in range(number_of_epochs):
             loss = torch.mean(-y*torch.log(y_prim))
             loss_epoch.append(loss.item())
 
-            
             _, predict_y = torch.max(y_prim, 1)
             
-            accuracy = accuracy_score(train_y.data, predict_y.data)
+            correct = 0
+            total = 0
+            
+            for i in range(len(batch)):
+                act_label = torch.argmax(y_prim[i]) # act_label = 1 (index)
+                pred_label = torch.argmax(y[i]) # pred_label = 1 (index)
+            
+                if(act_label == pred_label):
+                    correct += 1
+                total += 1
+            
+            accuracy = correct/total
+            
+            #accuracy = accuracy_score(train_y.data, predict_y.data)
+            
+            
             f1 = sklearn.metrics.f1_score(train_y.data, predict_y.data, average='micro')
             
-            accuracy_epoch.append(accuracy.item())
+            accuracy_epoch.append(accuracy)
             f1_epoch.append(f1.item())
             
             if dataset == train_dataset:
@@ -120,35 +140,44 @@ for epoch in range(number_of_epochs):
                 loss.backward()
                 optimizer.step()
                 
-        if dataset == train_dataset:
-            losses_train.append(np.average(loss_epoch))
-            train_accuracies.append(np.average(accuracy_epoch))
-            train_f1_scores.append(np.average(f1_epoch))
+        if stage == 'train':
+           var_dict[f'{stage}_loss'].append(np.average(loss_epoch))
+           var_dict[f'{stage}_accuracies'].append(np.average(accuracy_epoch))
+           var_dict[f'{stage}_f1_scores'].append(np.average(f1_epoch))
             
         else:
-            losses_test.append(np.average(loss_epoch))
-            test_accuracies.append(np.average(accuracy_epoch))
-            test_f1_scores.append(np.average(f1_epoch))
+           var_dict[f'{stage}_loss'].append(np.average(loss_epoch))
+           var_dict[f'{stage}_accuracies'].append(np.average(accuracy_epoch))
+           var_dict[f'{stage}_f1_scores'].append(np.average(f1_epoch))
         
-    iterationz.append(counter)
+    var_dict['iterationz'].append(counter)
     
 
 
 #%%    
     
-f, (ax1, ax2) = plt.pyplot.subplots(2, 1, sharey=False)
-sc1 = ax1.scatter(iterationz, losses_test)
+f, (ax1, ax2, ax3) = plt.pyplot.subplots(3, 1, sharey=False)
+
+ax1.set_title('1: Loss.  2: F1. 3: Accuracy.')
+
+sc1 = ax1.scatter(var_dict['iterationz'], var_dict['train_loss'])
+sc2 = ax1.scatter(var_dict['iterationz'],  var_dict['test_loss'])
 
 
-sc2 = ax1.scatter(iterationz, losses_train)
-#ax1.set_title('Loss (top) vs F1 (bottom)')
-sc3 = ax2.scatter(iterationz, train_f1_scores)
-sc4 = ax2.scatter(iterationz, test_f1_scores)
+sc3 = ax2.scatter(var_dict['iterationz'], var_dict['train_f1_scores'])
+sc4 = ax2.scatter(var_dict['iterationz'], var_dict['test_f1_scores'])
+
+sc5 = ax3.scatter(var_dict['iterationz'], var_dict['train_accuracies'])
+sc6 = ax3.scatter(var_dict['iterationz'], var_dict['test_accuracies'])
+
 
 ax1.set_xticks([])
-#ax2.set_xticks([])
+ax2.set_xticks([])
+
 
 ax1.legend((sc1, sc2), ('test', 'train'), loc='upper right', shadow=True)
+
+
             
     
             

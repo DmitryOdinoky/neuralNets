@@ -113,20 +113,20 @@ for epoch in range(number_of_epochs):
             
             correct = 0
             total = 0
-            true = []
+            actual = []
             pred = []
            
            
             for i in range(len(batch)):
                 act_label = np.argmax(Y_train[i]) # act_label = 1 (index)
                 pred_label = np.argmax(output[i]) # pred_label = 1 (index)
-                true.append(act_label)
+                actual.append(act_label)
                 pred.append(pred_label)
                 if(act_label == pred_label):
                     correct += 1
                 total += 1
                 
-            f1_train = sklearn.metrics.f1_score(true, pred, average='macro')
+            f1_train = sklearn.metrics.f1_score(actual, pred, average='macro')
             
             
             loss_func.backward()  
