@@ -130,7 +130,7 @@ for epoch in range(number_of_epochs):
             #accuracy = accuracy_score(train_y.data, predict_y.data)
             
             
-            f1 = sklearn.metrics.f1_score(train_y.data, predict_y.data, average='micro')
+            f1 = sklearn.metrics.f1_score(train_y.data, predict_y.data, average='macro')
             
             accuracy_epoch.append(accuracy)
             f1_epoch.append(f1.item())
