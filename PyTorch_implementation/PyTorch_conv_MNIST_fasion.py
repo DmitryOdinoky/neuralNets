@@ -58,9 +58,9 @@ test_dataset = torchvision.datasets.FashionMNIST("./data", download=False, train
 
 
 train_loader = torch.utils.data.DataLoader(train_dataset, 
-                                           batch_size=100)
+                                           batch_size=5)
 test_loader = torch.utils.data.DataLoader(test_dataset,
-                                          batch_size=100)
+                                          batch_size=5)
 
 #%%
 
@@ -106,32 +106,47 @@ class FashionCNN(nn.Module):
         super(FashionCNN, self).__init__()
         
         self.layer1 = nn.Sequential(
-            nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(32),
+            nn.Conv2d(in_channels=3*64*64, out_channels=8*32*32, kernel_size=3, padding=1),
+            nn.BatchNorm2d(8*32*32),
             nn.ReLU(),
             nn.MaxPool2d(kernel_size=2, stride=2)
         )
         
         self.layer2 = nn.Sequential(
-            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3),
-            nn.BatchNorm2d(64),
+            nn.Conv2d(in_channels=8*32*32, out_channels=16*8*8, kernel_size=3),
+            nn.BatchNorm2d(16*8*8),
+            nn.ReLU(),
+            nn.MaxPool2d(2)
+        )
+
+        self.layer3 = nn.Sequential(
+            nn.Conv2d(in_channels=16*8*8, out_channels=24*2*2, kernel_size=3),
+            nn.BatchNorm2d(24*2*2),
             nn.ReLU(),
             nn.MaxPool2d(2)
         )
         
-        self.fc1 = nn.Linear(in_features=64*6*6, out_features=600)
-        self.drop = nn.Dropout2d(0.25)
-        self.fc2 = nn.Linear(in_features=600, out_features=120)
-        self.fc3 = nn.Linear(in_features=120, out_features=10)
+        self.layer4 = nn.Sequential(
+        nn.Conv2d(in_channels=24*2*2, out_channels=24*2*2, kernel_size=3),
+        nn.BatchNorm2d(10),
+        nn.ReLU(),
+        nn.MaxPool2d(2)
+        )
+        
+  
+        #self.drop = nn.Dropout2d(0.25)
+
+        self.fc1 = nn.Linear(in_features=24*2*2, out_features=10)
         
     def forward(self, x):
         out = self.layer1(x)
         out = self.layer2(out)
+        out = self.layer3(out)
+        out = self.layer4(out)
         out = out.view(out.size(0), -1)
         out = self.fc1(out)
-        out = self.drop(out)
-        out = self.fc2(out)
-        out = self.fc3(out)
+        #out = self.drop(out)
+
         
         return out
 
@@ -188,14 +203,14 @@ for epoch in range(number_of_epochs):
             images, labels = batch
             images, labels = images.to(device), labels.to(device)
 
-            train_X = Variable(images.view(100, 1, 28, 28))
+            train_X = Variable(torch.Tensor(images.view(64, 1, 28, 28).float()))
             train_y = Variable(labels)
             
             optimizer.zero_grad()
             y_prim = net.forward(train_X)
             
-            class_count = y_prim.size(1)
-            tmp = torch.arange(class_count).unsqueeze(dim=0)            
+            class_count = y_prim.size(1)          
+            tmp = torch.arange(class_count)          
             
             
             y = (train_y.unsqueeze(dim=1) == tmp).float()
@@ -204,7 +219,7 @@ for epoch in range(number_of_epochs):
             
             loss = torch.mean(-y*torch.log(y_prim))
             
-            loss = loss(y_prim, labels)
+            #loss = loss(y_prim.item(), labels)
             loss_epoch.append(loss.item())
 
             _, predict_y = torch.max(y_prim, 1)
