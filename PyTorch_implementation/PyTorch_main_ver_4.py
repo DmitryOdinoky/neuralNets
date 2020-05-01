@@ -175,7 +175,7 @@ ax1.set_xticks([])
 ax2.set_xticks([])
 
 
-ax1.legend((sc1, sc2), ('test', 'train'), loc='upper right', shadow=True)
+ax1.legend((sc1, sc2), ('train', 'test'), loc='upper right', shadow=True)
 
 
             

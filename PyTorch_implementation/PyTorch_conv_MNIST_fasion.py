@@ -10,6 +10,9 @@ import torch
 import numpy as np
 import matplotlib as plt
 
+import argparse
+import os
+
 
 
 import torch.optim as optim
@@ -32,6 +35,42 @@ device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
 #%%
 
+parser = argparse.ArgumentParser(description='Keras Fashion MNIST Example',
+                                 formatter_class=argparse.ArgumentDefaultsHelpFormatter)
+parser.add_argument('--log-dir', default='./logs',
+                    help='tensorboard log directory')
+
+parser.add_argument('--batchsize', type=int, default=32,
+                    help='input batch size for training')
+
+parser.add_argument('--epochs', type=int, default=5,
+                    help='number of epochs to train')
+
+parser.add_argument('--learning_rate', type=float, default=0.01,
+                    help='learning rate for a single GPU')
+
+parser.add_argument('--kernel_size', type=int, default=3,
+                    help='kernel size for convolution')
+
+parser.add_argument('--padding', type=int, default=1,
+                    help='padding')
+
+parser.add_argument('--stride', type=int, default=2,
+                    help='stride')
+# parser.add_argument('--warmup-epochs', type=float, default=5,
+#                     help='number of warmup epochs')
+# parser.add_argument('--momentum', type=float, default=0.9,
+#                     help='SGD momentum')
+# parser.add_argument('--wd', type=float, default=0.000005,
+#                     help='weight decay')
+
+args = parser.parse_args()
+
+# Checkpoints will be written in the log directory.
+args.checkpoint_format = os.path.join(args.log_dir, 'checkpoint-{epoch}.h5')
+
+#%%
+
 def output_label(label):
     output_mapping = {
                  0: "T-shirt/Top",
@@ -51,16 +90,31 @@ def output_label(label):
 #%%
     
     
-train_dataset = torchvision.datasets.FashionMNIST("./data", download=False, transform= \
-                                                transforms.Compose([transforms.ToTensor()]))
-test_dataset = torchvision.datasets.FashionMNIST("./data", download=False, train=False, transform= \
-                                               transforms.Compose([transforms.ToTensor()]))  
+train_dataset = torchvision.datasets.FashionMNIST(
+    "./data", download=False, 
+    transform = transforms.Compose([
+        transforms.ToTensor()
+        
+        ])
+)
 
 
-train_loader = torch.utils.data.DataLoader(train_dataset, 
-                                           batch_size=5)
-test_loader = torch.utils.data.DataLoader(test_dataset,
-                                          batch_size=5)
+test_dataset = torchvision.datasets.FashionMNIST(
+    "./data", download=False, train=False, transform = transforms.Compose([
+        transforms.ToTensor()
+        ])
+    
+)  
+
+
+train_loader = torch.utils.data.DataLoader(
+    train_dataset,
+    shuffle=True,
+    batch_size = args.batchsize)
+test_loader = torch.utils.data.DataLoader(
+    test_dataset,
+    shuffle=False,
+    batch_size=args.batchsize)
 
 #%%
 
@@ -100,43 +154,66 @@ torch.manual_seed(1234)
 #     torch.nn.Softmax(dim=1)
 # )
 
+def get_output_size(conv2d: nn.Conv2d, input_size):
+    
+    output_size = (input_size - conv2d.kernel_size[0] + 2*conv2d.padding[0]) / conv2d.stride[0] + 1
+    
+    return output_size
+    
 class FashionCNN(nn.Module):
     
     def __init__(self):
         super(FashionCNN, self).__init__()
         
+        input_size = 28 #W, H
         self.layer1 = nn.Sequential(
-            nn.Conv2d(in_channels=3*64*64, out_channels=8*32*32, kernel_size=3, padding=1),
-            nn.BatchNorm2d(8*32*32),
+            nn.Conv2d(in_channels = 1, out_channels = 8, 
+                kernel_size = 7, 
+                padding = args.padding, stride=args.stride),
+            nn.BatchNorm2d(num_features=8),
             nn.ReLU(),
-            nn.MaxPool2d(kernel_size=2, stride=2)
+            #nn.MaxPool2d(kernel_size=2, stride=2)
         )
+        
+        input_size = get_output_size(next(iter(self.layer1.children())), input_size)
         
         self.layer2 = nn.Sequential(
-            nn.Conv2d(in_channels=8*32*32, out_channels=16*8*8, kernel_size=3),
-            nn.BatchNorm2d(16*8*8),
+            nn.Conv2d(in_channels=8, out_channels=16,
+                kernel_size=args.kernel_size,
+                padding=args.padding, stride=args.stride),
+            nn.BatchNorm2d(num_features=16),
             nn.ReLU(),
-            nn.MaxPool2d(2)
-        )
-
-        self.layer3 = nn.Sequential(
-            nn.Conv2d(in_channels=16*8*8, out_channels=24*2*2, kernel_size=3),
-            nn.BatchNorm2d(24*2*2),
-            nn.ReLU(),
-            nn.MaxPool2d(2)
+            #nn.MaxPool2d(2)
         )
         
-        self.layer4 = nn.Sequential(
-        nn.Conv2d(in_channels=24*2*2, out_channels=24*2*2, kernel_size=3),
-        nn.BatchNorm2d(10),
-        nn.ReLU(),
-        nn.MaxPool2d(2)
+        input_size = get_output_size(next(iter(self.layer2.children())), input_size)
+
+        self.layer3 = nn.Sequential(
+            nn.Conv2d(in_channels=16, out_channels=24, 
+                kernel_size=args.kernel_size,
+                padding=args.padding, stride=args.stride),
+            nn.BatchNorm2d(num_features=24),
+            nn.ReLU(),
+            #nn.MaxPool2d(2)
         )
+        
+        input_size = get_output_size(next(iter(self.layer3.children())), input_size)
+        
+        self.layer4 = nn.Sequential(
+            nn.Conv2d(in_channels=24, out_channels=24,
+                      kernel_size=args.kernel_size,
+                      padding=args.padding, stride=args.stride),
+            nn.BatchNorm2d(num_features=24),
+            nn.ReLU(),
+            #nn.MaxPool2d(2)
+        )
+        
+        input_size = get_output_size(next(iter(self.layer4.children())), input_size)
         
   
         #self.drop = nn.Dropout2d(0.25)
 
-        self.fc1 = nn.Linear(in_features=24*2*2, out_features=10)
+        self.fc1 = nn.Linear(in_features=24*round(input_size)**2, out_features=10)
         
     def forward(self, x):
         out = self.layer1(x)
@@ -146,7 +223,8 @@ class FashionCNN(nn.Module):
         out = out.view(out.size(0), -1)
         out = self.fc1(out)
         #out = self.drop(out)
-
+        
+        out = torch.softmax(out, dim=1)
         
         return out
 
@@ -156,21 +234,21 @@ net.to(device)
 
 loss = nn.CrossEntropyLoss()
 
-learning_rate = 0.001
-optimizer = optim.Adam(net.parameters(), lr=learning_rate)
+#learning_rate =
+optimizer = optim.Adam(net.parameters(), lr=args.learning_rate)
 
 
-number_of_epochs = 15
+number_of_epochs = args.epochs
 
 #np.random.seed(32) # set seed value so that the results are reproduceable
 
-var_dict = {'train_loss': [], \
-            'test_loss': [], \
-            'train_accuracies': [], \
-            'iterationz': [], \
-            'train_f1_scores': [], \
-            'test_f1_scores': [], \
-            'test_accuracies': [], 
+var_dict = {'train_loss': [],
+            'test_loss': [],
+            'train_accuracies': [],
+            'iterationz': [],
+            'train_f1_scores': [],
+            'test_f1_scores': [],
+            'test_accuracies': [],
             }
 
 
@@ -203,8 +281,8 @@ for epoch in range(number_of_epochs):
             images, labels = batch
             images, labels = images.to(device), labels.to(device)
 
-            train_X = Variable(torch.Tensor(images.view(64, 1, 28, 28).float()))
-            train_y = Variable(labels)
+            train_X = images
+            train_y = labels
             
             optimizer.zero_grad()
             y_prim = net.forward(train_X)
@@ -246,7 +324,7 @@ for epoch in range(number_of_epochs):
             f1_epoch.append(f1.item())
             
             if not (helper % 10):
-                print("Iteration: {}, Loss: {}, Accuracy: {}%".format(helper, loss.item(), accuracy))
+                print(f"Iteration: {helper}, Loss: {loss.item()}, Accuracy: {accuracy*100}%")
             
             
             
